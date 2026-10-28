@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gagan Kesireddy | AI & Robotics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body, html {
@@ -15,9 +16,10 @@
             overflow: hidden;
             background-color: #0F1923; /* Valorant Dark UI Background */
             font-family: 'Inter', sans-serif;
-            color: #ECE8E1; /* Valorant Off-White */
+            color: #ECE8E1;
         }
 
+        /* 3D Background */
         #webgl-container {
             position: absolute;
             top: 0;
@@ -28,6 +30,7 @@
             cursor: crosshair;
         }
 
+        /* UI Layer */
         .ui-overlay {
             position: absolute;
             top: 0;
@@ -35,117 +38,180 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none; 
+            pointer-events: none; /* Let clicks pass to 3D canvas */
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 2.5rem 4rem;
+            padding: 2rem 5%;
             box-sizing: border-box;
+            background: radial-gradient(circle at center, transparent 0%, rgba(15, 25, 35, 0.8) 100%);
         }
 
-        .header {
+        /* Interactive Elements must have pointer-events: auto */
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* Top Navigation */
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 70, 85, 0.2);
+            padding-bottom: 1rem;
         }
         
         .logo {
-            font-family: 'Teko', sans-serif;
-            font-size: 2.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: 2px;
             color: #FF4655; /* Valorant Red */
-            text-transform: uppercase;
-            line-height: 1;
         }
 
-        .nav {
+        .nav-links {
             display: flex;
-            gap: 3rem;
+            align-items: center;
+            gap: 2.5rem;
         }
-        
-        .nav-item {
+
+        .nav-links a {
+            color: #ECE8E1;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
             font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             font-weight: 600;
-            cursor: pointer;
-            pointer-events: auto;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             transition: color 0.3s;
         }
-        
-        .nav-item:hover {
+
+        .nav-links a:hover { color: #FF4655; }
+
+        .lang-toggle {
+            background: transparent;
+            border: 1px solid #FF4655;
             color: #FF4655;
+            padding: 0.4rem 0.8rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-toggle:hover {
+            background: rgba(255, 70, 85, 0.1);
         }
 
-        .center-content {
-            text-align: center;
-            pointer-events: auto;
+        /* Hero Content */
+        .hero {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
+            text-align: center;
+            margin-top: -2rem;
+        }
+
+        .hero-availability {
+            font-family: 'Fira Code', monospace;
+            color: #39ff14; /* Matrix Green */
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            padding: 0.4rem 1rem;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 2px;
+            background: rgba(57, 255, 20, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .center-content h1 {
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #39ff14;
+            box-shadow: 0 0 8px #39ff14;
+            animation: pulse 1.5s infinite;
+        }
+
+        .hero h1 {
             font-family: 'Teko', sans-serif;
-            font-size: 7rem;
+            font-size: 5.5rem;
             font-weight: 700;
-            margin: 0;
-            line-height: 0.9;
+            margin: 0 0 0.5rem 0;
+            line-height: 1;
             letter-spacing: 1px;
             text-transform: uppercase;
             text-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
         }
         
-        .center-content h2 {
-            font-size: 1.1rem;
-            font-weight: 400;
+        .hero h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
             color: #8B978F;
-            margin-top: 15px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            max-width: 700px;
+            margin: 0 0 1.5rem 0;
         }
 
-        .btn-expedition {
-            margin-top: 40px;
-            padding: 15px 45px;
-            background: #FF4655;
-            border: none;
-            color: #ECE8E1;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            pointer-events: auto;
+        .stats-strip {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: #FF4655;
+            margin-bottom: 2.5rem;
+            word-spacing: 5px;
+            background: rgba(255, 70, 85, 0.05);
+            padding: 0.5rem 1.5rem;
+            border-left: 3px solid #FF4655;
+            border-right: 3px solid #FF4655;
         }
-        
-        .btn-expedition:hover {
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #FF4655;
+            color: #ECE8E1;
+            border: 1px solid #FF4655;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-primary:hover {
             background: #ECE8E1;
             color: #0F1923;
-            transform: scale(1.05);
+            transform: translateY(-2px);
         }
 
-        .drag-hint {
-            font-size: 0.8rem;
+        .btn-secondary {
+            background: transparent;
+            color: #ECE8E1;
+            border: 1px solid #8B978F;
+        }
+
+        .btn-secondary:hover {
+            border-color: #FF4655;
             color: #FF4655;
-            margin-top: 25px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            animation: pulse 2s infinite;
-        }
-
-        .bottom-bar {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: #8B978F;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
+            background: rgba(255, 70, 85, 0.1);
+            transform: translateY(-2px);
         }
 
         @keyframes pulse {
@@ -154,42 +220,61 @@
             100% { opacity: 1; }
         }
 
-        @media (max-width: 768px) {
-            .center-content h1 { font-size: 4rem; }
-            .ui-overlay { padding: 1.5rem; }
-            .nav { display: none; }
+        .drag-hint {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.75rem;
+            color: #8B978F;
+            font-family: 'Fira Code', monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+            left: 0;
         }
     </style>
 </head>
 <body>
 
+    <!-- 3D Raze Particle Background -->
     <div id="webgl-container"></div>
     
+    <!-- Exact Content from Master Plan -->
     <div class="ui-overlay">
-        <div class="header">
-            <div class="logo">KGC.LAB</div>
-            <div class="nav">
-                <div class="nav-item">Payloads</div>
-                <div class="nav-item">Kinematics</div>
-                <div class="nav-item">Neural Nets</div>
+        
+        <nav class="interactive">
+            <div class="logo">&lt;KGC/&gt;</div>
+            <div class="nav-links">
+                <a href="#projects">Projects</a>
+                <a href="#research">Research</a>
+                <a href="#skills">Skills</a>
+                <button class="lang-toggle">EN / DE</button>
+            </div>
+        </nav>
+        
+        <div class="hero">
+            <div class="hero-availability interactive">
+                <div class="pulse-dot"></div>
+                Open to internships from March 2027
+            </div>
+            
+            <h1>Gagan Chaitanya Kesireddy</h1>
+            
+            <h2>Robotics M.Sc. student bridging deep learning and real robot manipulation.</h2>
+            
+            <div class="stats-strip interactive">
+                UR5e &middot; ROS 2 &middot; MoveIt &middot; YOLO &middot; SLAM &middot; 1 Publication
+            </div>
+            
+            <div class="hero-buttons interactive">
+                <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Resume</a>
+                <a href="https://github.com/Gagan-2211" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://linkedin.com/in/YOUR_LINK" target="_blank" class="btn btn-secondary"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                <a href="mailto:gaganchaitanya.k@gmail.com" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact</a>
             </div>
         </div>
-        
-        <div class="center-content">
-            <h1>Gagan Kesireddy</h1>
-            <h2>Robotics M.Sc. & AI Engineer</h2>
-            
-            <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" style="text-decoration: none;">
-                <button class="btn-expedition">Deploy Profile</button>
-            </a>
-            
-            <div class="drag-hint">[ CLICK TO DETONATE & DRAG TO ROTATE ]</div>
-        </div>
-        
-        <div class="bottom-bar">
-            <div>Cham, Bavaria</div>
-            <div>STATUS: FIRE IN THE HOLE</div>
-        </div>
+
+        <div class="drag-hint">[ CLICK TO DETONATE & DRAG TO EXPLORE ]</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -264,8 +349,8 @@
 
         window.addEventListener('mousedown', () => {
             isBlasting = true;
-            blastScale = 2.5; // The explosion expansion factor
-            controls.autoRotateSpeed = 15.0; // Spin violently
+            blastScale = 2.5; 
+            controls.autoRotateSpeed = 15.0; 
         });
 
         window.addEventListener('mouseup', () => {
@@ -277,7 +362,6 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Recoil mechanics (Spring back to normal)
             if (!isBlasting && blastScale > 1.0) {
                 blastScale -= 0.05;
                 if (blastScale < 1.0) blastScale = 1.0;
@@ -301,7 +385,3 @@
     </script>
 </body>
 </html>
-
-
-
-
