@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gagan Kesireddy | AI & Robotics</title>
+    <title>Gagan Kesireddy | Robotics & Performance Engineering</title>
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        :root {
+            --bg-carbon: #0A0B0E;
+            --petronas-cyan: #00A19B;
+            --barca-red: #A50044;
+            --raze-orange: #FF4655;
+            --fea-gold: #FFD700;
+            --silver: #E2E8F0;
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #0F1923; /* Valorant Dark UI Background */
+            background-color: var(--bg-carbon);
             font-family: 'Inter', sans-serif;
-            color: #ECE8E1;
+            color: var(--silver);
         }
 
-        /* 3D Background */
         #webgl-container {
             position: absolute;
             top: 0;
@@ -30,7 +38,6 @@
             cursor: crosshair;
         }
 
-        /* UI Layer */
         .ui-overlay {
             position: absolute;
             top: 0;
@@ -38,15 +45,14 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none; /* Let clicks pass to 3D canvas */
+            pointer-events: none;
             display: flex;
             flex-direction: column;
             padding: 2rem 5%;
             box-sizing: border-box;
-            background: radial-gradient(circle at center, transparent 0%, rgba(15, 25, 35, 0.8) 100%);
+            background: radial-gradient(circle at center, transparent 0%, rgba(10, 11, 14, 0.85) 100%);
         }
 
-        /* Interactive Elements must have pointer-events: auto */
         .interactive {
             pointer-events: auto;
         }
@@ -57,7 +63,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            border-bottom: 1px solid rgba(255, 70, 85, 0.2);
+            border-bottom: 1px solid rgba(0, 161, 155, 0.2);
             padding-bottom: 1rem;
         }
         
@@ -65,7 +71,8 @@
             font-family: 'Fira Code', monospace;
             font-size: 1.5rem;
             font-weight: 700;
-            color: #FF4655; /* Valorant Red */
+            color: var(--petronas-cyan);
+            text-shadow: 0 0 10px rgba(0, 161, 155, 0.4);
         }
 
         .nav-links {
@@ -75,7 +82,7 @@
         }
 
         .nav-links a {
-            color: #ECE8E1;
+            color: var(--silver);
             text-decoration: none;
             font-family: 'Inter', sans-serif;
             font-size: 0.85rem;
@@ -85,12 +92,12 @@
             transition: color 0.3s;
         }
 
-        .nav-links a:hover { color: #FF4655; }
+        .nav-links a:hover { color: var(--petronas-cyan); }
 
         .lang-toggle {
             background: transparent;
-            border: 1px solid #FF4655;
-            color: #FF4655;
+            border: 1px solid var(--petronas-cyan);
+            color: var(--petronas-cyan);
             padding: 0.4rem 0.8rem;
             font-family: 'Fira Code', monospace;
             font-size: 0.8rem;
@@ -99,7 +106,7 @@
         }
         
         .lang-toggle:hover {
-            background: rgba(255, 70, 85, 0.1);
+            background: rgba(0, 161, 155, 0.1);
         }
 
         /* Hero Content */
@@ -115,7 +122,7 @@
 
         .hero-availability {
             font-family: 'Fira Code', monospace;
-            color: #39ff14; /* Matrix Green */
+            color: #39ff14;
             font-size: 0.85rem;
             margin-bottom: 1.5rem;
             padding: 0.4rem 1rem;
@@ -144,14 +151,14 @@
             line-height: 1;
             letter-spacing: 1px;
             text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
+            text-shadow: 0 0 20px rgba(0, 161, 155, 0.2);
         }
         
         .hero h2 {
             font-family: 'Inter', sans-serif;
             font-size: 1.2rem;
             font-weight: 300;
-            color: #8B978F;
+            color: #94A3B8;
             max-width: 700px;
             margin: 0 0 1.5rem 0;
         }
@@ -159,13 +166,13 @@
         .stats-strip {
             font-family: 'Fira Code', monospace;
             font-size: 0.95rem;
-            color: #FF4655;
+            color: var(--petronas-cyan);
             margin-bottom: 2.5rem;
             word-spacing: 5px;
-            background: rgba(255, 70, 85, 0.05);
+            background: rgba(0, 161, 155, 0.05);
             padding: 0.5rem 1.5rem;
-            border-left: 3px solid #FF4655;
-            border-right: 3px solid #FF4655;
+            border-left: 3px solid var(--petronas-cyan);
+            border-right: 3px solid var(--raze-orange);
         }
 
         .hero-buttons {
@@ -189,28 +196,28 @@
         }
 
         .btn-primary {
-            background: #FF4655;
-            color: #ECE8E1;
-            border: 1px solid #FF4655;
+            background: var(--raze-orange);
+            color: var(--bg-carbon);
+            border: 1px solid var(--raze-orange);
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            box-shadow: 0 0 15px rgba(255, 70, 85, 0.3);
         }
 
         .btn-primary:hover {
-            background: #ECE8E1;
-            color: #0F1923;
+            background: var(--silver);
+            color: var(--bg-carbon);
             transform: translateY(-2px);
         }
 
         .btn-secondary {
             background: transparent;
-            color: #ECE8E1;
-            border: 1px solid #8B978F;
+            color: var(--silver);
+            border: 1px solid var(--petronas-cyan);
         }
 
         .btn-secondary:hover {
-            border-color: #FF4655;
-            color: #FF4655;
-            background: rgba(255, 70, 85, 0.1);
+            background: rgba(0, 161, 155, 0.1);
+            color: var(--petronas-cyan);
             transform: translateY(-2px);
         }
 
@@ -224,7 +231,7 @@
             position: absolute;
             bottom: 2rem;
             font-size: 0.75rem;
-            color: #8B978F;
+            color: #94A3B8;
             font-family: 'Fira Code', monospace;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -232,14 +239,15 @@
             text-align: center;
             left: 0;
         }
+
+        .highlight-red { color: var(--raze-orange); }
     </style>
 </head>
 <body>
 
-    <!-- 3D Raze Particle Background -->
+    <!-- 3D Abaqus FEA / Wind Tunnel Canvas -->
     <div id="webgl-container"></div>
     
-    <!-- Exact Content from Master Plan -->
     <div class="ui-overlay">
         
         <nav class="interactive">
@@ -274,105 +282,162 @@
             </div>
         </div>
 
-        <div class="drag-hint">[ CLICK TO DETONATE & DRAG TO EXPLORE ]</div>
+        <div class="drag-hint">[ MOVE MOUSE TO <span class="highlight-red">DEFLECT</span> | CLICK FOR <span class="highlight-red">FEA DETONATION</span> ]</div>
     </div>
 
+    <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <script>
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0F1923, 0.002); 
+        scene.fog = new THREE.FogExp2(0x0A0B0E, 0.0015); 
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-        camera.position.z = 400;
+        camera.position.z = 500;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = true;
-        controls.autoRotate = true; 
-        controls.autoRotateSpeed = 2.0; 
-
-        // Raze Particle System
-        const particlesCount = 6000;
+        // Particle System Setup
+        const particlesCount = 8000;
+        const geometry = new THREE.BufferGeometry();
+        
         const posArray = new Float32Array(particlesCount * 3);
-        const colorsArray = new Float32Array(particlesCount * 3);
+        const velArray = new Float32Array(particlesCount * 3);
+        const colorArray = new Float32Array(particlesCount * 3);
+        const baseColorArray = new Float32Array(particlesCount * 3);
+        const initialY = new Float32Array(particlesCount);
+        const initialZ = new Float32Array(particlesCount);
 
-        const colorValRed = new THREE.Color(0xFF4655); 
-        const colorOrange = new THREE.Color(0xFF8C00);
-        const colorPink = new THREE.Color(0xFF007F);
+        const colorCyan = new THREE.Color(0x00A19B); // Petronas
+        const colorSilver = new THREE.Color(0xE2E8F0); 
 
-        for(let i = 0; i < particlesCount * 3; i+=3) {
-            const radius = 600 * Math.random();
-            const theta = 2 * Math.PI * Math.random();
-            const phi = Math.acos(2 * Math.random() - 1);
+        for(let i = 0; i < particlesCount; i++) {
+            let idx = i * 3;
+            // Spread particles across a wide "wind tunnel"
+            posArray[idx] = (Math.random() - 0.5) * 2000; // X
+            posArray[idx+1] = (Math.random() - 0.5) * 800; // Y
+            posArray[idx+2] = (Math.random() - 0.5) * 600; // Z
 
-            posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
-            posArray[i+1] = radius * Math.sin(phi) * Math.sin(theta);
-            posArray[i+2] = radius * Math.cos(phi);
+            initialY[i] = posArray[idx+1];
+            initialZ[i] = posArray[idx+2];
 
-            const randColor = Math.random();
-            let c = colorValRed;
-            if (randColor > 0.6) c = colorOrange;
-            if (randColor > 0.85) c = colorPink;
+            velArray[idx] = 0; velArray[idx+1] = 0; velArray[idx+2] = 0;
 
-            colorsArray[i] = c.r;
-            colorsArray[i+1] = c.g;
-            colorsArray[i+2] = c.b;
+            let c = Math.random() > 0.3 ? colorCyan : colorSilver;
+            colorArray[idx] = c.r; colorArray[idx+1] = c.g; colorArray[idx+2] = c.b;
+            baseColorArray[idx] = c.r; baseColorArray[idx+1] = c.g; baseColorArray[idx+2] = c.b;
         }
 
-        const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
 
         const material = new THREE.PointsMaterial({
-            size: 3.5,
+            size: 3.0,
             vertexColors: true,
             blending: THREE.AdditiveBlending,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.8
         });
 
         const particlesMesh = new THREE.Points(geometry, material);
         scene.add(particlesMesh);
 
-        // Satchel Detonation Logic
-        let blastScale = 1.0;
+        // Mouse Physics Setup
+        let mouseX = 0;
+        let mouseY = 0;
         let isBlasting = false;
+        let blastFrame = 0;
+
+        window.addEventListener('mousemove', (event) => {
+            // Map screen mouse to 3D world coordinates roughly at Z=0
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            let vector = new THREE.Vector3(mouseX, mouseY, 0.5);
+            vector.unproject(camera);
+            let dir = vector.sub(camera.position).normalize();
+            let distance = -camera.position.z / dir.z;
+            let pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            
+            mouseX = pos.x;
+            mouseY = pos.y;
+        });
 
         window.addEventListener('mousedown', () => {
             isBlasting = true;
-            blastScale = 2.5; 
-            controls.autoRotateSpeed = 15.0; 
+            blastFrame = 30; // Detonation lasts for 30 frames
         });
 
-        window.addEventListener('mouseup', () => {
-            isBlasting = false;
-        });
-
-        const clock = new THREE.Clock();
-
+        // Animation Loop (The Physics Engine)
         function animate() {
             requestAnimationFrame(animate);
             
-            if (!isBlasting && blastScale > 1.0) {
-                blastScale -= 0.05;
-                if (blastScale < 1.0) blastScale = 1.0;
-            }
-            if (!isBlasting && controls.autoRotateSpeed > 2.0) {
-                controls.autoRotateSpeed -= 0.2;
+            const positions = geometry.attributes.position.array;
+            const colors = geometry.attributes.color.array;
+            
+            let baseWindSpeed = 4.0; // Wind tunnel flowing left
+
+            for(let i = 0; i < particlesCount; i++) {
+                let idx = i * 3;
+                
+                // 1. Wind Tunnel Movement
+                positions[idx] -= (baseWindSpeed + velArray[idx]); 
+                positions[idx+1] += velArray[idx+1]; 
+                positions[idx+2] += velArray[idx+2]; 
+
+                // 2. Mouse Goalkeeper Block & FEA Detonation Distance
+                let dx = positions[idx] - mouseX;
+                let dy = positions[idx+1] - mouseY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (blastFrame > 0 && dist < 400) {
+                    // FEA / Raze Detonation physics
+                    let force = (400 - dist) * 0.15;
+                    velArray[idx] += (dx / dist) * force;
+                    velArray[idx+1] += (dy / dist) * force;
+                    velArray[idx+2] += (Math.random() - 0.5) * force * 2;
+
+                    // Stress Color Shift (Cyan -> Yellow -> Red)
+                    colors[idx] = 1.0; // Red
+                    colors[idx+1] = dist < 150 ? 0.2 : 0.8; // Orange/Yellow mix
+                    colors[idx+2] = 0.1; // Blue down
+                } else if (dist < 150) {
+                    // Goalkeeper Deflection physics
+                    let force = (150 - dist) * 0.05;
+                    velArray[idx] += (dx / dist) * force;
+                    velArray[idx+1] += (dy / dist) * force;
+                } else {
+                    // Smooth return to original color
+                    colors[idx] += (baseColorArray[idx] - colors[idx]) * 0.05;
+                    colors[idx+1] += (baseColorArray[idx+1] - colors[idx+1]) * 0.05;
+                    colors[idx+2] += (baseColorArray[idx+2] - colors[idx+2]) * 0.05;
+                }
+
+                // 3. Spring physics (return to baseline)
+                velArray[idx] *= 0.92; // Friction
+                velArray[idx+1] -= (positions[idx+1] - initialY[i]) * 0.02; // Spring Y
+                velArray[idx+1] *= 0.92;
+                velArray[idx+2] -= (positions[idx+2] - initialZ[i]) * 0.02; // Spring Z
+                velArray[idx+2] *= 0.92;
+
+                // 4. Reset if off-screen (Looping Wind Tunnel)
+                if (positions[idx] < -1000) {
+                    positions[idx] = 1000;
+                    positions[idx+1] = initialY[i];
+                    positions[idx+2] = initialZ[i];
+                    velArray[idx] = 0; velArray[idx+1] = 0; velArray[idx+2] = 0;
+                }
             }
 
-            particlesMesh.scale.set(blastScale, blastScale, blastScale);
+            if (blastFrame > 0) blastFrame--;
 
-            controls.update();
+            geometry.attributes.position.needsUpdate = true;
+            geometry.attributes.color.needsUpdate = true;
+
             renderer.render(scene, camera);
         }
         animate();
@@ -385,3 +450,8 @@
     </script>
 </body>
 </html>
+
+
+
+
+
