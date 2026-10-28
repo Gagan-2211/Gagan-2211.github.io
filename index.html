@@ -13,9 +13,11 @@
             --bg-deep: #050a15;
             --bg-hud: rgba(10, 20, 40, 0.6);
             --cyan: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.2);
             --magenta: #ff003c;
             --green: #39ff14;
             --text-main: #e0e7ff;
+            --text-muted: #8b9bb4;
             --font-sans: 'Inter', sans-serif;
             --font-mono: 'Fira Code', monospace;
         }
@@ -49,8 +51,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem 5%;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--cyan-dim);
             background: rgba(5, 10, 21, 0.8);
             backdrop-filter: blur(10px);
             position: sticky;
@@ -66,10 +68,15 @@
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
         .nav-links a {
             color: var(--text-main);
             text-decoration: none;
-            margin-left: 2rem;
             font-family: var(--font-mono);
             font-size: 0.9rem;
             transition: color 0.3s;
@@ -79,80 +86,49 @@
             color: var(--cyan);
         }
 
-        /* HUD Grid Layout */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            padding: 2rem 5%;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 900px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Diagnostics Sidebar */
-        .diagnostics {
-            background: var(--bg-hud);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 8px;
-            padding: 1.5rem;
-            height: fit-content;
-            backdrop-filter: blur(5px);
-            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
-        }
-
-        .diag-header {
-            font-family: var(--font-mono);
+        .lang-toggle {
+            background: transparent;
+            border: 1px solid var(--cyan);
             color: var(--cyan);
-            font-size: 1rem;
-            border-bottom: 1px dashed var(--cyan);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-row {
-            margin-bottom: 1rem;
-        }
-
-        .stat-label {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: #8b9bb4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-toggle:hover {
+            background: var(--cyan-dim);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .stat-fill {
-            height: 100%;
-            background: var(--cyan);
-            box-shadow: 0 0 10px var(--cyan);
-            transition: width 0.5s ease;
-        }
-
-        .status-indicator {
-            display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            margin-top: 1.5rem;
+            text-align: center;
+            padding: 4rem 5%;
+            position: relative;
         }
 
-        .dot {
+        .hero-availability {
+            font-family: var(--font-mono);
+            color: var(--green);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            padding: 0.4rem 1rem;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 20px;
+            background: rgba(57, 255, 20, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pulse-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -161,86 +137,72 @@
             animation: pulse 1.5s infinite;
         }
 
-        /* Terminal Window */
-        .terminal {
-            background: rgba(0, 5, 15, 0.9);
-            border: 1px solid rgba(0, 240, 255, 0.4);
-            border-radius: 8px;
-            padding: 2rem;
-            font-family: var(--font-mono);
-            color: var(--cyan);
-            height: 250px;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
-            position: relative;
-            overflow: hidden;
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero h2 {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            max-width: 800px;
             margin-bottom: 2rem;
+            line-height: 1.4;
         }
 
-        .scanline {
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(0deg, rgba(0,240,255,0) 0%, rgba(0,240,255,0.1) 50%, rgba(0,240,255,0) 100%);
-            position: absolute;
-            top: -100px;
-            left: 0;
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-        }
-
-        /* Project Grid */
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .project-card {
-            background: var(--bg-hud);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(5px);
-        }
-
-        .project-card:hover {
-            border-color: var(--cyan);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 2px;
-            height: 0;
-            background: var(--cyan);
-            transition: height 0.3s ease;
-        }
-
-        .project-card:hover::before {
-            height: 100%;
-        }
-
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .tech-tag {
+        .stats-strip {
             font-family: var(--font-mono);
-            font-size: 0.7rem;
-            padding: 0.3rem 0.6rem;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 4px;
+            font-size: 1rem;
             color: var(--cyan);
+            margin-bottom: 3rem;
+            word-spacing: 5px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--cyan);
+            color: var(--bg-deep);
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--text-muted);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: var(--cyan-dim);
+            transform: translateY(-2px);
         }
 
         /* Animations */
@@ -249,10 +211,11 @@
             50% { opacity: 0.4; }
             100% { opacity: 1; }
         }
-
-        @keyframes scan {
-            0% { top: -100px; }
-            100% { top: 100%; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero h2 { font-size: 1.2rem; }
+            .stats-strip { font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -260,144 +223,41 @@
 
     <canvas id="lidar-canvas"></canvas>
 
+    <!-- Navigation -->
     <nav>
-        <div class="logo">&lt;G.K /&gt;</div>
+        <div class="logo">&lt;KGC/&gt;</div>
         <div class="nav-links">
-            <a href="https://github.com/Gagan-2211" target="_blank"><i class="fab fa-github"></i> GITHUB</a>
-            <a href="mailto:gaganchaitanya.k@gmail.com"><i class="fas fa-envelope"></i> COMM.LINK</a>
+            <a href="#projects">Projects</a>
+            <a href="#about">About</a>
+            <button class="lang-toggle">EN / DE</button>
         </div>
     </nav>
 
-    <div class="dashboard">
-        <!-- Diagnostics HUD -->
-        <aside class="diagnostics">
-            <div class="diag-header">SYS.DIAGNOSTICS</div>
-            
-            <div class="stat-row">
-                <div class="stat-label"><span>CPU_LOAD</span> <span id="cpu-val">42%</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="cpu-bar" style="width: 42%;"></div></div>
-            </div>
-            
-            <div class="stat-row">
-                <div class="stat-label"><span>MEM_ALLOC</span> <span id="mem-val">68%</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="mem-bar" style="width: 68%;"></div></div>
-            </div>
-
-            <div class="stat-row">
-                <div class="stat-label"><span>ROS_NODES</span> <span>ACTIVE</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width: 100%; background: var(--green); box-shadow: 0 0 10px var(--green);"></div></div>
-            </div>
-
-            <div class="status-indicator">
-                <div class="dot"></div>
-                SYSTEM ONLINE & READY
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main>
-            <div class="terminal">
-                <div class="scanline"></div>
-                <div id="typewriter"></div>
-            </div>
-
-            <div class="project-grid">
-                <!-- Project 1 -->
-                <div class="project-card">
-                    <h3 style="margin-bottom: 0.5rem;">Multi-Robot SAR System</h3>
-                    <p style="font-size: 0.9rem; color: #a0aec0; line-height: 1.5;">Engineered a synchronized multi-robot framework utilizing TD3 Deep Reinforcement Learning and Nav2 MPPI controllers for autonomous frontier exploration and target discovery.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">ROS 2</span>
-                        <span class="tech-tag">TD3 (DRL)</span>
-                        <span class="tech-tag">Nav2</span>
-                        <span class="tech-tag">Gazebo</span>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="project-card">
-                    <h3 style="margin-bottom: 0.5rem;">6-DoF Manipulator Kinematics</h3>
-                    <p style="font-size: 0.9rem; color: #a0aec0; line-height: 1.5;">Simulated a UR5e collaborative arm with custom inverse kinematics solvers. Resolved dynamic pendulum stabilization to achieve 100% success rate in grasp planning.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">MoveIt</span>
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">TF2</span>
-                        <span class="tech-tag">Control Theory</span>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card">
-                    <h3 style="margin-bottom: 0.5rem;">Spatio-Temporal Trajectory AI</h3>
-                    <p style="font-size: 0.9rem; color: #a0aec0; line-height: 1.5;">Built an LSTM encoder-decoder combined with 1D CNN layers to forecast multi-agent pedestrian and vehicle trajectories utilizing real-world drone sensor data.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">TensorFlow</span>
-                        <span class="tech-tag">Keras</span>
-                        <span class="tech-tag">Deep Learning</span>
-                        <span class="tech-tag">OpenCV</span>
-                    </div>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="project-card">
-                    <h3 style="margin-bottom: 0.5rem;">Mechanical & Ballistic Simulation</h3>
-                    <p style="font-size: 0.9rem; color: #a0aec0; line-height: 1.5;">Conducted FEA simulations for armored vehicle mechanisms. Simulated high-velocity ballistic impacts on composites via custom Monte Carlo scripting.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Abaqus</span>
-                        <span class="tech-tag">MATLAB</span>
-                        <span class="tech-tag">FEA</span>
-                        <span class="tech-tag">SolidWorks</span>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-availability">
+            <div class="pulse-dot"></div>
+            Open to internships from March 2027
+        </div>
+        
+        <h1>Gagan Chaitanya Kesireddy</h1>
+        
+        <h2>Robotics M.Sc. student bridging deep learning and real robot manipulation.</h2>
+        
+        <div class="stats-strip">
+            UR5e &middot; ROS 2 &middot; MoveIt &middot; YOLO &middot; SLAM &middot; 1 Publication
+        </div>
+        
+        <div class="hero-buttons">
+            <!-- Note: Upload your resume PDF and insert your LinkedIn URL below -->
+            <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Resume</a>
+            <a href="https://github.com/Gagan-2211" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> GitHub</a>
+            <a href="YOUR_LINKEDIN_URL_HERE" target="_blank" class="btn btn-secondary"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            <a href="mailto:gaganchaitanya.k@gmail.com" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
+    </section>
 
     <script>
-        // Terminal Typewriter Effect
-        const lines = [
-            "INITIALIZING ROS_CORE ...",
-            "LOADING SLAM_TOOLBOX ... [OK]",
-            "CONNECTING TO /cmd_vel ... [OK]",
-            "LOADING NEURAL NETWORKS (TD3, YOLO) ... [OK]",
-            "CALIBRATING 6-DoF KINEMATICS ... [OK]",
-            "> WELCOME, GAGAN_KESIREDDY.",
-            "> STATUS: AI & ROBOTICS ENGINEER READY. █"
-        ];
-        
-        let lineIndex = 0;
-        let charIndex = 0;
-        const speed = 30;
-        const terminal = document.getElementById("typewriter");
-
-        function typeWriter() {
-            if (lineIndex < lines.length) {
-                if (charIndex < lines[lineIndex].length) {
-                    terminal.innerHTML += lines[lineIndex].charAt(charIndex);
-                    charIndex++;
-                    setTimeout(typeWriter, speed);
-                } else {
-                    terminal.innerHTML += "<br/>";
-                    lineIndex++;
-                    charIndex = 0;
-                    setTimeout(typeWriter, speed * 5);
-                }
-            }
-        }
-        setTimeout(typeWriter, 500);
-
-        // Live HUD Simulation
-        setInterval(() => {
-            let newCpu = Math.floor(Math.random() * 30) + 30;
-            let newMem = Math.floor(Math.random() * 10) + 60;
-            
-            document.getElementById('cpu-val').innerText = newCpu + '%';
-            document.getElementById('cpu-bar').style.width = newCpu + '%';
-            
-            document.getElementById('mem-val').innerText = newMem + '%';
-            document.getElementById('mem-bar').style.width = newMem + '%';
-        }, 2000);
-
         // LiDAR Point Cloud Background
         const canvas = document.getElementById('lidar-canvas');
         const ctx = canvas.getContext('2d');
