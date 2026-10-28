@@ -4,305 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gagan Kesireddy | Robotics & Performance Engineering</title>
-    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-carbon: #0A0B0E;
+            --bg-carbon: #06080C;
+            --panel-bg: #0A0D14;
             --petronas-cyan: #00A19B;
+            --petronas-glow: rgba(0, 161, 155, 0.3);
+            --raze-red: #FF4655;
             --barca-red: #A50044;
-            --raze-orange: #FF4655;
-            --fea-gold: #FFD700;
             --silver: #E2E8F0;
+            --text-muted: #8B978F;
+            --font-head: 'Rajdhani', sans-serif;
+            --font-tech: 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            width: 100%; height: 100%;
             background-color: var(--bg-carbon);
-            font-family: 'Inter', sans-serif;
             color: var(--silver);
+            overflow: hidden;
+            display: flex;
         }
 
-        #webgl-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* LEFT PANEL: Control Interface */
+        .left-panel {
+            width: 40%;
+            min-width: 450px;
+            max-width: 550px;
             height: 100%;
-            z-index: 1;
-            cursor: crosshair;
-        }
-
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
+            background-color: var(--panel-bg);
+            border-right: 2px solid rgba(0, 161, 155, 0.2);
+            padding: 3rem;
             display: flex;
             flex-direction: column;
-            padding: 2rem 5%;
-            box-sizing: border-box;
-            background: radial-gradient(circle at center, transparent 0%, rgba(10, 11, 14, 0.85) 100%);
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
 
-        .interactive {
-            pointer-events: auto;
-        }
-
-        /* Top Navigation */
-        nav {
+        /* Top Nav inside Left Panel */
+        .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            border-bottom: 1px solid rgba(0, 161, 155, 0.2);
-            padding-bottom: 1rem;
         }
-        
+
         .logo {
-            font-family: 'Fira Code', monospace;
-            font-size: 1.5rem;
+            font-family: var(--font-tech);
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--petronas-cyan);
-            text-shadow: 0 0 10px rgba(0, 161, 155, 0.4);
+            text-shadow: 0 0 10px var(--petronas-glow);
         }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 2.5rem;
-        }
-
-        .nav-links a {
-            color: var(--silver);
-            text-decoration: none;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover { color: var(--petronas-cyan); }
 
         .lang-toggle {
             background: transparent;
             border: 1px solid var(--petronas-cyan);
             color: var(--petronas-cyan);
-            padding: 0.4rem 0.8rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            font-family: var(--font-tech);
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
         
         .lang-toggle:hover {
-            background: rgba(0, 161, 155, 0.1);
+            background: var(--petronas-glow);
         }
 
-        /* Hero Content */
-        .hero {
+        /* Core Content */
+        .hero-content {
+            margin-top: 2rem;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin-top: -2rem;
         }
 
-        .hero-availability {
-            font-family: 'Fira Code', monospace;
+        .availability {
+            font-family: var(--font-tech);
             color: #39ff14;
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            padding: 0.4rem 1rem;
-            border: 1px solid rgba(57, 255, 20, 0.3);
-            border-radius: 2px;
-            background: rgba(57, 255, 20, 0.05);
+            font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 1.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(57, 255, 20, 0.05);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 2px;
+            align-self: flex-start;
         }
-        
+
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px; height: 6px;
             border-radius: 50%;
             background: #39ff14;
             box-shadow: 0 0 8px #39ff14;
             animation: pulse 1.5s infinite;
         }
 
-        .hero h1 {
-            font-family: 'Teko', sans-serif;
-            font-size: 5.5rem;
+        h1 {
+            font-family: var(--font-head);
+            font-size: 3.5rem;
             font-weight: 700;
-            margin: 0 0 0.5rem 0;
             line-height: 1;
-            letter-spacing: 1px;
+            margin-bottom: 1rem;
             text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(0, 161, 155, 0.2);
         }
-        
-        .hero h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.2rem;
+
+        h2 {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
             font-weight: 300;
-            color: #94A3B8;
-            max-width: 700px;
-            margin: 0 0 1.5rem 0;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.5;
         }
 
         .stats-strip {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
+            font-family: var(--font-tech);
+            font-size: 0.85rem;
             color: var(--petronas-cyan);
-            margin-bottom: 2.5rem;
-            word-spacing: 5px;
             background: rgba(0, 161, 155, 0.05);
-            padding: 0.5rem 1.5rem;
+            padding: 1rem;
             border-left: 3px solid var(--petronas-cyan);
-            border-right: 3px solid var(--raze-orange);
+            margin-bottom: 3rem;
+            line-height: 1.8;
+            word-spacing: 3px;
         }
 
-        .hero-buttons {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
+        /* Control Switches (Buttons) */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
+            justify-content: center;
+            gap: 10px;
+            padding: 1rem;
+            font-family: var(--font-tech);
+            font-size: 0.85rem;
             font-weight: 600;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            cursor: pointer;
         }
 
         .btn-primary {
-            background: var(--raze-orange);
-            color: var(--bg-carbon);
-            border: 1px solid var(--raze-orange);
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            box-shadow: 0 0 15px rgba(255, 70, 85, 0.3);
+            background: var(--raze-red);
+            color: #fff;
+            border: 1px solid var(--raze-red);
+            grid-column: span 2; /* Make resume button full width */
         }
 
         .btn-primary:hover {
-            background: var(--silver);
-            color: var(--bg-carbon);
-            transform: translateY(-2px);
+            background: var(--barca-red);
+            border-color: var(--barca-red);
         }
 
         .btn-secondary {
             background: transparent;
             color: var(--silver);
-            border: 1px solid var(--petronas-cyan);
+            border: 1px solid var(--text-muted);
         }
 
         .btn-secondary:hover {
-            background: rgba(0, 161, 155, 0.1);
+            border-color: var(--petronas-cyan);
             color: var(--petronas-cyan);
-            transform: translateY(-2px);
+            background: rgba(0, 161, 155, 0.05);
+        }
+
+        /* RIGHT PANEL: Live Simulation */
+        .right-panel {
+            flex-grow: 1;
+            position: relative;
+            background-color: var(--bg-carbon);
+            overflow: hidden;
+        }
+
+        #webgl-container {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-family: var(--font-tech);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .hud-overlay span { color: var(--petronas-cyan); }
+
+        .hint-text {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-tech);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.4; }
+            50% { opacity: 0.3; }
             100% { opacity: 1; }
         }
 
-        .drag-hint {
-            position: absolute;
-            bottom: 2rem;
-            font-size: 0.75rem;
-            color: #94A3B8;
-            font-family: 'Fira Code', monospace;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            width: 100%;
-            text-align: center;
-            left: 0;
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .left-panel { width: 100%; min-width: auto; max-width: none; height: auto; border-right: none; border-bottom: 2px solid rgba(0,161,155,0.2); padding: 2rem; }
+            .right-panel { height: 50vh; }
         }
-
-        .highlight-red { color: var(--raze-orange); }
     </style>
 </head>
 <body>
 
-    <!-- 3D Abaqus FEA / Wind Tunnel Canvas -->
-    <div id="webgl-container"></div>
-    
-    <div class="ui-overlay">
-        
-        <nav class="interactive">
+    <!-- LEFT PANEL: Engineering Profile -->
+    <div class="left-panel">
+        <div class="panel-header">
             <div class="logo">&lt;KGC/&gt;</div>
-            <div class="nav-links">
-                <a href="#projects">Projects</a>
-                <a href="#research">Research</a>
-                <a href="#skills">Skills</a>
-                <button class="lang-toggle">EN / DE</button>
-            </div>
-        </nav>
-        
-        <div class="hero">
-            <div class="hero-availability interactive">
+            <button class="lang-toggle">EN / DE</button>
+        </div>
+
+        <div class="hero-content">
+            <div class="availability">
                 <div class="pulse-dot"></div>
                 Open to internships from March 2027
             </div>
             
-            <h1>Gagan Chaitanya Kesireddy</h1>
+            <h1>Gagan Chaitanya<br>Kesireddy</h1>
             
             <h2>Robotics M.Sc. student bridging deep learning and real robot manipulation.</h2>
             
-            <div class="stats-strip interactive">
-                UR5e &middot; ROS 2 &middot; MoveIt &middot; YOLO &middot; SLAM &middot; 1 Publication
+            <div class="stats-strip">
+                UR5e &middot; ROS 2 &middot; MoveIt &middot; YOLO<br>SLAM &middot; 1 Publication (DRDO)
             </div>
             
-            <div class="hero-buttons interactive">
-                <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Resume</a>
+            <div class="button-grid">
+                <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Initialize Resume</a>
                 <a href="https://github.com/Gagan-2211" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> GitHub</a>
                 <a href="https://linkedin.com/in/YOUR_LINK" target="_blank" class="btn btn-secondary"><i class="fab fa-linkedin"></i> LinkedIn</a>
-                <a href="mailto:gaganchaitanya.k@gmail.com" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="mailto:gaganchaitanya.k@gmail.com" class="btn btn-secondary" style="grid-column: span 2;"><i class="fas fa-envelope"></i> Secure Channel (Contact)</a>
             </div>
         </div>
-
-        <div class="drag-hint">[ MOVE MOUSE TO <span class="highlight-red">DEFLECT</span> | CLICK FOR <span class="highlight-red">FEA DETONATION</span> ]</div>
     </div>
 
-    <!-- Three.js Library -->
+    <!-- RIGHT PANEL: Live Simulation Window -->
+    <div class="right-panel" id="right-panel">
+        <div class="hud-overlay">
+            SYS: <span>NOMINAL</span><br>
+            ENGINE: <span>ABAQUS/AERO v2.4</span><br>
+            MODE: <span>INTERACTIVE</span>
+        </div>
+        
+        <div id="webgl-container"></div>
+        
+        <div class="hint-text">
+            [ MOUSE: DEFLECT &nbsp;|&nbsp; CLICK: FEA STRESS TEST ]
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
         const container = document.getElementById('webgl-container');
+        const rightPanel = document.getElementById('right-panel');
+        
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0A0B0E, 0.0015); 
+        scene.fog = new THREE.FogExp2(0x06080C, 0.0015); 
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const camera = new THREE.PerspectiveCamera(75, rightPanel.clientWidth / rightPanel.clientHeight, 0.1, 2000);
         camera.position.z = 500;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(rightPanel.clientWidth, rightPanel.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Particle System Setup
-        const particlesCount = 8000;
+        // FEA Wind Tunnel Particles
+        const particlesCount = 6000;
         const geometry = new THREE.BufferGeometry();
         
         const posArray = new Float32Array(particlesCount * 3);
@@ -312,22 +316,20 @@
         const initialY = new Float32Array(particlesCount);
         const initialZ = new Float32Array(particlesCount);
 
-        const colorCyan = new THREE.Color(0x00A19B); // Petronas
-        const colorSilver = new THREE.Color(0xE2E8F0); 
+        const colorCyan = new THREE.Color(0x00A19B); // Petronas F1
+        const colorSilver = new THREE.Color(0x334155); 
 
         for(let i = 0; i < particlesCount; i++) {
             let idx = i * 3;
-            // Spread particles across a wide "wind tunnel"
-            posArray[idx] = (Math.random() - 0.5) * 2000; // X
+            posArray[idx] = (Math.random() - 0.5) * 1500; // X
             posArray[idx+1] = (Math.random() - 0.5) * 800; // Y
             posArray[idx+2] = (Math.random() - 0.5) * 600; // Z
 
             initialY[i] = posArray[idx+1];
             initialZ[i] = posArray[idx+2];
-
             velArray[idx] = 0; velArray[idx+1] = 0; velArray[idx+2] = 0;
 
-            let c = Math.random() > 0.3 ? colorCyan : colorSilver;
+            let c = Math.random() > 0.4 ? colorCyan : colorSilver;
             colorArray[idx] = c.r; colorArray[idx+1] = c.g; colorArray[idx+2] = c.b;
             baseColorArray[idx] = c.r; baseColorArray[idx+1] = c.g; baseColorArray[idx+2] = c.b;
         }
@@ -336,28 +338,31 @@
         geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
 
         const material = new THREE.PointsMaterial({
-            size: 3.0,
+            size: 2.5,
             vertexColors: true,
             blending: THREE.AdditiveBlending,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
         });
 
         const particlesMesh = new THREE.Points(geometry, material);
         scene.add(particlesMesh);
 
-        // Mouse Physics Setup
+        // Physics Interaction setup mapped specifically to the right panel
         let mouseX = 0;
         let mouseY = 0;
-        let isBlasting = false;
         let blastFrame = 0;
 
-        window.addEventListener('mousemove', (event) => {
-            // Map screen mouse to 3D world coordinates roughly at Z=0
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        rightPanel.addEventListener('mousemove', (event) => {
+            const rect = rightPanel.getBoundingClientRect();
+            // Map mouse to the local bounds of the 3D window
+            const localX = event.clientX - rect.left;
+            const localY = event.clientY - rect.top;
             
-            let vector = new THREE.Vector3(mouseX, mouseY, 0.5);
+            const ndcX = (localX / rightPanel.clientWidth) * 2 - 1;
+            const ndcY = -(localY / rightPanel.clientHeight) * 2 + 1;
+            
+            let vector = new THREE.Vector3(ndcX, ndcY, 0.5);
             vector.unproject(camera);
             let dir = vector.sub(camera.position).normalize();
             let distance = -camera.position.z / dir.z;
@@ -367,66 +372,60 @@
             mouseY = pos.y;
         });
 
-        window.addEventListener('mousedown', () => {
-            isBlasting = true;
-            blastFrame = 30; // Detonation lasts for 30 frames
-        });
+        rightPanel.addEventListener('mousedown', () => { blastFrame = 25; });
 
-        // Animation Loop (The Physics Engine)
         function animate() {
             requestAnimationFrame(animate);
             
             const positions = geometry.attributes.position.array;
             const colors = geometry.attributes.color.array;
-            
-            let baseWindSpeed = 4.0; // Wind tunnel flowing left
+            let windSpeed = 3.5; 
 
             for(let i = 0; i < particlesCount; i++) {
                 let idx = i * 3;
                 
-                // 1. Wind Tunnel Movement
-                positions[idx] -= (baseWindSpeed + velArray[idx]); 
+                // Flow right to left
+                positions[idx] -= (windSpeed + velArray[idx]); 
                 positions[idx+1] += velArray[idx+1]; 
                 positions[idx+2] += velArray[idx+2]; 
 
-                // 2. Mouse Goalkeeper Block & FEA Detonation Distance
                 let dx = positions[idx] - mouseX;
                 let dy = positions[idx+1] - mouseY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
 
-                if (blastFrame > 0 && dist < 400) {
-                    // FEA / Raze Detonation physics
-                    let force = (400 - dist) * 0.15;
+                if (blastFrame > 0 && dist < 350) {
+                    // Detonation / FEA Stress
+                    let force = (350 - dist) * 0.12;
                     velArray[idx] += (dx / dist) * force;
                     velArray[idx+1] += (dy / dist) * force;
                     velArray[idx+2] += (Math.random() - 0.5) * force * 2;
 
-                    // Stress Color Shift (Cyan -> Yellow -> Red)
-                    colors[idx] = 1.0; // Red
-                    colors[idx+1] = dist < 150 ? 0.2 : 0.8; // Orange/Yellow mix
-                    colors[idx+2] = 0.1; // Blue down
-                } else if (dist < 150) {
-                    // Goalkeeper Deflection physics
-                    let force = (150 - dist) * 0.05;
+                    // Stress Color Shift (Barca Red / Raze Orange)
+                    colors[idx] = 1.0; 
+                    colors[idx+1] = dist < 120 ? 0.1 : 0.8; 
+                    colors[idx+2] = 0.2; 
+                } else if (dist < 120) {
+                    // Goalkeeper Block (Deflection)
+                    let force = (120 - dist) * 0.04;
                     velArray[idx] += (dx / dist) * force;
                     velArray[idx+1] += (dy / dist) * force;
                 } else {
-                    // Smooth return to original color
+                    // Return to base color
                     colors[idx] += (baseColorArray[idx] - colors[idx]) * 0.05;
                     colors[idx+1] += (baseColorArray[idx+1] - colors[idx+1]) * 0.05;
                     colors[idx+2] += (baseColorArray[idx+2] - colors[idx+2]) * 0.05;
                 }
 
-                // 3. Spring physics (return to baseline)
-                velArray[idx] *= 0.92; // Friction
-                velArray[idx+1] -= (positions[idx+1] - initialY[i]) * 0.02; // Spring Y
-                velArray[idx+1] *= 0.92;
-                velArray[idx+2] -= (positions[idx+2] - initialZ[i]) * 0.02; // Spring Z
-                velArray[idx+2] *= 0.92;
+                // Physics spring back
+                velArray[idx] *= 0.90; 
+                velArray[idx+1] -= (positions[idx+1] - initialY[i]) * 0.03; 
+                velArray[idx+1] *= 0.90;
+                velArray[idx+2] -= (positions[idx+2] - initialZ[i]) * 0.03; 
+                velArray[idx+2] *= 0.90;
 
-                // 4. Reset if off-screen (Looping Wind Tunnel)
-                if (positions[idx] < -1000) {
-                    positions[idx] = 1000;
+                // Loop particles
+                if (positions[idx] < -800) {
+                    positions[idx] = 800;
                     positions[idx+1] = initialY[i];
                     positions[idx+2] = initialZ[i];
                     velArray[idx] = 0; velArray[idx+1] = 0; velArray[idx+2] = 0;
@@ -434,7 +433,6 @@
             }
 
             if (blastFrame > 0) blastFrame--;
-
             geometry.attributes.position.needsUpdate = true;
             geometry.attributes.color.needsUpdate = true;
 
@@ -443,15 +441,10 @@
         animate();
 
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = rightPanel.clientWidth / rightPanel.clientHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(rightPanel.clientWidth, rightPanel.clientHeight);
         });
     </script>
 </body>
 </html>
-
-
-
-
-
