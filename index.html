@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gagan Kesireddy | AI & Robotics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <style>
         body, html {
@@ -13,11 +13,11 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #030508; /* Deep space dark */
+            background-color: #0F1923; /* Valorant Dark UI Background */
             font-family: 'Inter', sans-serif;
+            color: #ECE8E1; /* Valorant Off-White */
         }
 
-        /* 3D Canvas Layer */
         #webgl-container {
             position: absolute;
             top: 0;
@@ -25,13 +25,9 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            cursor: grab;
-        }
-        #webgl-container:active {
-            cursor: grabbing;
+            cursor: crosshair;
         }
 
-        /* Minimalist UI Overlay (Like Deekshitth's) */
         .ui-overlay {
             position: absolute;
             top: 0;
@@ -39,105 +35,127 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none; /* Lets mouse clicks pass through to the 3D scene */
+            pointer-events: none; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 2.5rem 4rem;
             box-sizing: border-box;
-            color: #ffffff;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        
         .logo {
-            font-weight: 600;
+            font-family: 'Teko', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
             letter-spacing: 2px;
-            font-size: 1rem;
+            color: #FF4655; /* Valorant Red */
             text-transform: uppercase;
+            line-height: 1;
         }
+
         .nav {
             display: flex;
             gap: 3rem;
         }
+        
         .nav-item {
             font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 300;
+            letter-spacing: 2px;
+            font-weight: 600;
             cursor: pointer;
             pointer-events: auto;
-            transition: opacity 0.3s;
+            transition: color 0.3s;
         }
+        
         .nav-item:hover {
-            opacity: 0.6;
+            color: #FF4655;
         }
 
-        /* Center Content */
         .center-content {
             text-align: center;
             pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
         .center-content h1 {
-            font-size: 6rem;
-            font-weight: 200;
+            font-family: 'Teko', sans-serif;
+            font-size: 7rem;
+            font-weight: 700;
             margin: 0;
-            letter-spacing: -3px;
-        }
-        .center-content h2 {
-            font-size: 1.2rem;
-            font-weight: 300;
-            color: #a0aec0;
-            margin-top: 10px;
+            line-height: 0.9;
             letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
+        }
+        
+        .center-content h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #8B978F;
+            margin-top: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .btn-expedition {
             margin-top: 40px;
-            padding: 15px 40px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            border-radius: 50px;
-            font-size: 0.9rem;
+            padding: 15px 45px;
+            background: #FF4655;
+            border: none;
+            color: #ECE8E1;
+            font-weight: 800;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.4s ease;
-            backdrop-filter: blur(5px);
+            transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-family: 'Inter', sans-serif;
+            letter-spacing: 3px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            pointer-events: auto;
         }
+        
         .btn-expedition:hover {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
+            background: #ECE8E1;
+            color: #0F1923;
             transform: scale(1.05);
         }
 
         .drag-hint {
             font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 20px;
-            font-weight: 300;
-            letter-spacing: 1px;
+            color: #FF4655;
+            margin-top: 25px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
         }
 
-        /* Bottom Bar */
         .bottom-bar {
             display: flex;
             justify-content: space-between;
             font-size: 0.75rem;
-            color: #64748b;
+            color: #8B978F;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
         }
 
         @media (max-width: 768px) {
-            .center-content h1 { font-size: 3.5rem; }
+            .center-content h1 { font-size: 4rem; }
             .ui-overlay { padding: 1.5rem; }
             .nav { display: none; }
         }
@@ -145,78 +163,69 @@
 </head>
 <body>
 
-    <!-- 3D Canvas -->
     <div id="webgl-container"></div>
     
-    <!-- Floating Minimalist UI -->
     <div class="ui-overlay">
         <div class="header">
-            <div class="logo">Gagan Kesireddy</div>
+            <div class="logo">KGC.LAB</div>
             <div class="nav">
-                <div class="nav-item">Trajectory</div>
+                <div class="nav-item">Payloads</div>
                 <div class="nav-item">Kinematics</div>
-                <div class="nav-item">Neural Core</div>
+                <div class="nav-item">Neural Nets</div>
             </div>
         </div>
         
         <div class="center-content">
-            <h1>Deekshitth</h1> <!-- Wait, updating to your name! -->
-            <h1 style="font-size: 5rem;">Gagan Kesireddy</h1>
+            <h1>Gagan Kesireddy</h1>
             <h2>Robotics M.Sc. & AI Engineer</h2>
             
             <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" style="text-decoration: none;">
-                <button class="btn-expedition">Initialize Profile</button>
+                <button class="btn-expedition">Deploy Profile</button>
             </a>
             
-            <div class="drag-hint">Drag to explore the environment</div>
+            <div class="drag-hint">[ CLICK TO DETONATE & DRAG TO ROTATE ]</div>
         </div>
         
         <div class="bottom-bar">
             <div>Cham, Bavaria</div>
-            <div>ROS 2 Node: Active</div>
+            <div>STATUS: FIRE IN THE HOLE</div>
         </div>
     </div>
 
-    <!-- Three.js Library & Controls (Required for 3D) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <script>
-        // 1. Scene Setup
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x030508, 0.0015); // Adds depth/fade to the edges
+        scene.fog = new THREE.FogExp2(0x0F1923, 0.002); 
 
-        // 2. Camera Setup
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.z = 400;
 
-        // 3. Renderer Setup
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // 4. Mouse Controls (Allows you to drag and look around)
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enableZoom = true;
-        controls.autoRotate = true; // Slowly spins the world automatically
-        controls.autoRotateSpeed = 0.8;
+        controls.autoRotate = true; 
+        controls.autoRotateSpeed = 2.0; 
 
-        // 5. Build the 3D Particle Cloud
-        const particlesCount = 8000;
+        // Raze Particle System
+        const particlesCount = 6000;
         const posArray = new Float32Array(particlesCount * 3);
         const colorsArray = new Float32Array(particlesCount * 3);
 
-        const colorBlue = new THREE.Color(0x0088ff); 
-        const colorCyan = new THREE.Color(0x00f0ff);
-        const colorWhite = new THREE.Color(0xffffff);
+        const colorValRed = new THREE.Color(0xFF4655); 
+        const colorOrange = new THREE.Color(0xFF8C00);
+        const colorPink = new THREE.Color(0xFF007F);
 
         for(let i = 0; i < particlesCount * 3; i+=3) {
-            // Distribute particles in a massive 3D sphere
-            const radius = 800 * Math.random();
+            const radius = 600 * Math.random();
             const theta = 2 * Math.PI * Math.random();
             const phi = Math.acos(2 * Math.random() - 1);
 
@@ -224,11 +233,10 @@
             posArray[i+1] = radius * Math.sin(phi) * Math.sin(theta);
             posArray[i+2] = radius * Math.cos(phi);
 
-            // Mix the colors dynamically
             const randColor = Math.random();
-            let c = colorBlue;
-            if (randColor > 0.7) c = colorCyan;
-            if (randColor > 0.95) c = colorWhite;
+            let c = colorValRed;
+            if (randColor > 0.6) c = colorOrange;
+            if (randColor > 0.85) c = colorPink;
 
             colorsArray[i] = c.r;
             colorsArray[i+1] = c.g;
@@ -240,56 +248,51 @@
         geometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
 
         const material = new THREE.PointsMaterial({
-            size: 2.5,
+            size: 3.5,
             vertexColors: true,
             blending: THREE.AdditiveBlending,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
         });
 
         const particlesMesh = new THREE.Points(geometry, material);
         scene.add(particlesMesh);
 
-        // 6. Build the Inner 3D Geometric Core
-        const coreGeo = new THREE.IcosahedronGeometry(80, 2);
-        const coreMat = new THREE.MeshBasicMaterial({ 
-            color: 0x0088ff, 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0.15 
-        });
-        const core = new THREE.Mesh(coreGeo, coreMat);
-        scene.add(core);
+        // Satchel Detonation Logic
+        let blastScale = 1.0;
+        let isBlasting = false;
 
-        const innerCoreGeo = new THREE.IcosahedronGeometry(50, 1);
-        const innerCoreMat = new THREE.MeshBasicMaterial({ 
-            color: 0x00f0ff, 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0.3 
+        window.addEventListener('mousedown', () => {
+            isBlasting = true;
+            blastScale = 2.5; // The explosion expansion factor
+            controls.autoRotateSpeed = 15.0; // Spin violently
         });
-        const innerCore = new THREE.Mesh(innerCoreGeo, innerCoreMat);
-        scene.add(innerCore);
 
-        // 7. Animation Loop
+        window.addEventListener('mouseup', () => {
+            isBlasting = false;
+        });
+
         const clock = new THREE.Clock();
 
         function animate() {
             requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
+            
+            // Recoil mechanics (Spring back to normal)
+            if (!isBlasting && blastScale > 1.0) {
+                blastScale -= 0.05;
+                if (blastScale < 1.0) blastScale = 1.0;
+            }
+            if (!isBlasting && controls.autoRotateSpeed > 2.0) {
+                controls.autoRotateSpeed -= 0.2;
+            }
 
-            // Gently rotate the inner geometric shapes
-            core.rotation.x = elapsedTime * 0.1;
-            core.rotation.y = elapsedTime * 0.15;
-            innerCore.rotation.x = elapsedTime * -0.2;
-            innerCore.rotation.y = elapsedTime * -0.1;
+            particlesMesh.scale.set(blastScale, blastScale, blastScale);
 
             controls.update();
             renderer.render(scene, camera);
         }
         animate();
 
-        // 8. Handle Window Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -298,3 +301,7 @@
     </script>
 </body>
 </html>
+
+
+
+
