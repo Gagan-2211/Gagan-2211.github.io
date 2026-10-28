@@ -188,4 +188,113 @@
         scene.fog = new THREE.FogExp2(0x030508, 0.0015); // Adds depth/fade to the edges
 
         // 2. Camera Setup
-        const camera = new THREE.PerspectiveCamera(75, window.
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.z = 400;
+
+        // 3. Renderer Setup
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // 4. Mouse Controls (Allows you to drag and look around)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = true;
+        controls.autoRotate = true; // Slowly spins the world automatically
+        controls.autoRotateSpeed = 0.8;
+
+        // 5. Build the 3D Particle Cloud
+        const particlesCount = 8000;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorsArray = new Float32Array(particlesCount * 3);
+
+        const colorBlue = new THREE.Color(0x0088ff); 
+        const colorCyan = new THREE.Color(0x00f0ff);
+        const colorWhite = new THREE.Color(0xffffff);
+
+        for(let i = 0; i < particlesCount * 3; i+=3) {
+            // Distribute particles in a massive 3D sphere
+            const radius = 800 * Math.random();
+            const theta = 2 * Math.PI * Math.random();
+            const phi = Math.acos(2 * Math.random() - 1);
+
+            posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
+            posArray[i+1] = radius * Math.sin(phi) * Math.sin(theta);
+            posArray[i+2] = radius * Math.cos(phi);
+
+            // Mix the colors dynamically
+            const randColor = Math.random();
+            let c = colorBlue;
+            if (randColor > 0.7) c = colorCyan;
+            if (randColor > 0.95) c = colorWhite;
+
+            colorsArray[i] = c.r;
+            colorsArray[i+1] = c.g;
+            colorsArray[i+2] = c.b;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 2.5,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(geometry, material);
+        scene.add(particlesMesh);
+
+        // 6. Build the Inner 3D Geometric Core
+        const coreGeo = new THREE.IcosahedronGeometry(80, 2);
+        const coreMat = new THREE.MeshBasicMaterial({ 
+            color: 0x0088ff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.15 
+        });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        const innerCoreGeo = new THREE.IcosahedronGeometry(50, 1);
+        const innerCoreMat = new THREE.MeshBasicMaterial({ 
+            color: 0x00f0ff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.3 
+        });
+        const innerCore = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+        scene.add(innerCore);
+
+        // 7. Animation Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Gently rotate the inner geometric shapes
+            core.rotation.x = elapsedTime * 0.1;
+            core.rotation.y = elapsedTime * 0.15;
+            innerCore.rotation.x = elapsedTime * -0.2;
+            innerCore.rotation.y = elapsedTime * -0.1;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 8. Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
