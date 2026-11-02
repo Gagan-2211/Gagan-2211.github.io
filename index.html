@@ -3,423 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gagan Kesireddy | Robotics Navigator</title>
+    <title>Gagan Kesireddy | KGC.LAB</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
             --bg-carbon: #06080C;
-            --panel-bg: #0A0D14;
             --petronas-cyan: #00A19B;
             --raze-red: #FF4655;
             --silver: #E2E8F0;
-            --text-muted: #8B978F;
             --font-head: 'Rajdhani', sans-serif;
             --font-tech: 'Fira Code', monospace;
             --font-body: 'Inter', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body, html {
-            width: 100%; height: 100%;
-            background-color: var(--bg-carbon);
-            color: var(--silver);
-            overflow: hidden;
-            display: flex;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-carbon); overflow: hidden;
+            font-family: var(--font-body);
         }
 
-        /* LEFT PANEL */
-        .left-panel {
-            width: 40%;
-            min-width: 450px; max-width: 550px;
-            height: 100%;
-            background-color: var(--panel-bg);
-            border-right: 2px solid rgba(255, 70, 85, 0.2);
-            padding: 3rem;
-            display: flex; flex-direction: column;
-            position: relative; z-index: 10;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+        /* 3D Canvas */
+        #webgl-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; outline: none; }
+
+        /* UI Overlays */
+        .hud-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+            pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
+            padding: 2.5rem; box-sizing: border-box;
         }
 
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; }
         
-        .logo {
-            font-family: var(--font-tech); font-size: 1.8rem; font-weight: 700;
-            color: var(--raze-red); text-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
-            cursor: pointer;
+        .logo { font-family: var(--font-tech); font-size: 2rem; font-weight: 700; color: var(--raze-red); text-shadow: 0 0 15px rgba(255, 70, 85, 0.4); pointer-events: auto; cursor: pointer; }
+        
+        .telemetry { font-family: var(--font-tech); font-size: 0.8rem; color: #8B978F; text-align: right; line-height: 1.5; }
+        .telemetry span { color: var(--petronas-cyan); }
+
+        .controls-hint { text-align: center; font-family: var(--font-tech); color: #fff; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px #000; }
+        .controls-hint span { color: var(--raze-red); }
+
+        /* The Assemble Button */
+        #assemble-btn {
+            pointer-events: auto; margin: 0 auto; display: block;
+            background: rgba(255, 70, 85, 0.1); border: 2px solid var(--raze-red); color: var(--raze-red);
+            padding: 1rem 3rem; font-family: var(--font-tech); font-size: 1.2rem; font-weight: 700;
+            text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 70, 85, 0.2); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
         }
+        #assemble-btn:hover { background: var(--raze-red); color: #fff; }
+        #assemble-btn.active { background: var(--petronas-cyan); border-color: var(--petronas-cyan); color: #000; box-shadow: 0 0 30px rgba(0, 161, 155, 0.5); }
 
-        /* Dynamic Content Container */
-        #dynamic-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-
-        .availability {
-            font-family: var(--font-tech); color: #39ff14; font-size: 0.8rem;
-            display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;
-            padding: 0.4rem 0.8rem; background: rgba(57, 255, 20, 0.05);
-            border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 2px; align-self: flex-start;
+        /* Project Data Modal */
+        #project-modal {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+            width: 80%; max-width: 800px; background: rgba(10, 13, 20, 0.95);
+            border: 1px solid var(--petronas-cyan); padding: 3rem; z-index: 20;
+            box-shadow: 0 0 50px rgba(0, 161, 155, 0.2); backdrop-filter: blur(10px);
+            opacity: 0; pointer-events: none; transition: all 0.4s ease;
         }
+        #project-modal.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
 
-        .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: #39ff14; box-shadow: 0 0 8px #39ff14; animation: pulse 1.5s infinite; }
-
-        h1 { font-family: var(--font-head); font-size: 3.5rem; font-weight: 700; line-height: 1; margin-bottom: 1rem; text-transform: uppercase; }
-        h2 { font-family: var(--font-body); font-size: 1.1rem; font-weight: 300; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.5; }
-
-        .stats-strip {
-            font-family: var(--font-tech); font-size: 0.85rem; color: var(--raze-red);
-            background: rgba(255, 70, 85, 0.05); padding: 1rem; border-left: 3px solid var(--raze-red);
-            margin-bottom: 3rem; line-height: 1.8; word-spacing: 3px;
+        .modal-category { font-family: var(--font-tech); color: var(--petronas-cyan); font-size: 0.9rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px; }
+        .modal-title { font-family: var(--font-head); font-size: 4rem; color: #fff; line-height: 1; margin-bottom: 1rem; text-transform: uppercase; }
+        .modal-desc { font-family: var(--font-body); font-size: 1.1rem; color: var(--silver); margin-bottom: 2rem; line-height: 1.6; }
+        .modal-tech { font-family: var(--font-tech); font-size: 0.9rem; color: #8B978F; margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--petronas-cyan); }
+        
+        .modal-btn {
+            display: inline-block; padding: 1rem 2rem; background: var(--petronas-cyan); color: #000;
+            font-family: var(--font-tech); font-weight: 700; text-decoration: none; text-transform: uppercase; transition: 0.2s;
         }
-
-        /* Project Specific Styles */
-        .project-title { color: var(--petronas-cyan); font-size: 2.5rem; }
-        .project-tech { font-family: var(--font-tech); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
-        .project-desc { font-family: var(--font-body); font-size: 1rem; color: var(--silver); line-height: 1.6; margin-bottom: 1.5rem; }
-        .project-list { font-family: var(--font-body); font-size: 0.95rem; color: var(--silver); margin-left: 1.5rem; line-height: 1.8; }
-        .project-list li { margin-bottom: 0.5rem; }
-
-        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px; padding: 1rem;
-            font-family: var(--font-tech); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
-            text-decoration: none; transition: all 0.2s ease; border-radius: 2px; cursor: pointer;
+        .modal-btn:hover { background: #fff; }
+        
+        #close-modal {
+            position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none;
+            color: #fff; font-size: 1.5rem; cursor: pointer; font-family: var(--font-tech);
         }
-        .btn-primary { background: var(--petronas-cyan); color: #fff; border: 1px solid var(--petronas-cyan); grid-column: span 2; }
-        .btn-primary:hover { background: #fff; color: var(--bg-carbon); }
-        .btn-secondary { background: transparent; color: var(--silver); border: 1px solid var(--text-muted); }
-        .btn-secondary:hover { border-color: var(--raze-red); color: var(--raze-red); background: rgba(255, 70, 85, 0.05); }
+        #close-modal:hover { color: var(--raze-red); }
 
-        /* RIGHT PANEL */
-        .right-panel { flex-grow: 1; position: relative; background-color: var(--bg-carbon); overflow: hidden; }
-        #webgl-container { width: 100%; height: 100%; cursor: crosshair; outline: none; }
-
-        .hud-overlay { position: absolute; top: 2rem; right: 2rem; font-family: var(--font-tech); font-size: 0.75rem; color: var(--text-muted); text-align: right; pointer-events: none; z-index: 5; }
-        .hud-overlay span { color: var(--raze-red); }
-
-        #titan-btn {
-            position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 70, 85, 0.1); border: 1px solid var(--raze-red); color: var(--raze-red);
-            padding: 1rem 2rem; font-family: var(--font-tech); font-size: 1rem; font-weight: 700;
-            cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px rgba(255, 70, 85, 0.3);
-            transition: all 0.3s ease; z-index: 5;
-        }
-        #titan-btn:hover { background: var(--raze-red); color: #fff; }
-        #titan-btn.active { background: var(--petronas-cyan); border-color: var(--petronas-cyan); color: #fff; box-shadow: 0 0 20px rgba(0, 161, 155, 0.5); }
-
-        .hint-text {
-            position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
-            font-family: var(--font-tech); font-size: 0.85rem; color: #fff;
-            pointer-events: none; text-transform: uppercase; letter-spacing: 2px;
-            display: none; z-index: 5; text-shadow: 0 0 10px #000;
-        }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        /* Crosshair */
+        .crosshair { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: rgba(255,255,255,0.5); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <!-- LEFT PANEL: Dynamic UI -->
-    <div class="left-panel" id="left-panel">
-        <div class="panel-header">
-            <div class="logo" onclick="loadContent('hero')">&lt;KGC.LAB/&gt;</div>
-            <div style="font-family: var(--font-tech); font-size: 0.75rem; color: var(--text-muted);">SYS.NAV</div>
+    <div id="webgl-container" tabindex="0"></div>
+    <div class="crosshair"></div>
+
+    <div class="hud-layer">
+        <div class="top-bar">
+            <div class="logo">&lt;KGC.LAB/&gt;</div>
+            <div class="telemetry">
+                ENGINE: <span>INSTANCED MESH v3</span><br>
+                UNITS: <span id="unit-count">3,000</span><br>
+                STATUS: <span id="status-text" style="color:var(--raze-red);">ROAMING</span>
+            </div>
         </div>
         
-        <div id="dynamic-content">
-            <!-- Content is injected here by JS -->
+        <div class="controls-hint" id="hint-text">
+            <span>[ CLICK BUTTON TO ASSEMBLE TITAN ]</span>
         </div>
+
+        <button id="assemble-btn">ACTIVATE TITAN</button>
     </div>
 
-    <!-- RIGHT PANEL: 3D Swarm Navigation -->
-    <div class="right-panel" id="right-panel">
-        <div class="hud-overlay">
-            SYS: <span>CHITTI.NEURAL</span><br>
-            SWARM PROTOCOL: <span id="mode-text">SCATTERED</span><br>
-            LOCATION: <span id="loc-text">HOME</span>
-        </div>
-        
-        <button id="titan-btn">ACTIVATE TITAN</button>
-        <div class="hint-text" id="wasd-hint">[ USE W A S D TO WALK INTO PROJECT PORTALS ]</div>
-        
-        <div id="webgl-container" tabindex="0"></div>
+    <!-- The Project Modal -->
+    <div id="project-modal">
+        <button id="close-modal">X</button>
+        <div class="modal-category" id="m-category">SYSTEM.NODE</div>
+        <div class="modal-title" id="m-title">PROJECT NAME</div>
+        <div class="modal-tech" id="m-tech">TECH STACK HERE</div>
+        <div class="modal-desc" id="m-desc">Project description goes here. Detailed metrics and kinematics data.</div>
+        <a href="#" class="modal-btn">ACCESS REPOSITORY</a>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        /* ==================================================
-           1. DYNAMIC CONTENT INJECTION (LEFT PANEL)
-        ================================================== */
-        const contentData = {
-            hero: `
-                <div class="availability"><div class="pulse-dot"></div>Open to internships from March 2027</div>
-                <h1>Gagan Chaitanya<br>Kesireddy</h1>
-                <h2>Robotics M.Sc. student bridging deep learning and real robot manipulation.</h2>
-                <div class="stats-strip">UR5e &middot; ROS 2 &middot; MoveIt &middot; YOLO<br>SLAM &middot; 1 Publication (DRDO)</div>
-                <div class="button-grid">
-                    <a href="Resume_Gagan_Kesireddy.pdf" target="_blank" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Initialize Resume</a>
-                    <a href="https://github.com/Gagan-2211" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> GitHub</a>
-                    <a href="#" class="btn btn-secondary"><i class="fab fa-linkedin"></i> LinkedIn</a>
-                </div>
-            `,
-            ur5e: `
-                <div class="availability" style="color:var(--petronas-cyan); border-color:var(--petronas-cyan); background:rgba(0,161,155,0.1);">
-                    PROJECT 01 DEPLOYED
-                </div>
-                <h1 class="project-title">6-DoF UR5e<br>Manipulator</h1>
-                <div class="project-tech">Gazebo | MoveIt | TF2 | IK Solvers</div>
-                <p class="project-desc">Achieved 100% success rate in autonomous peg-in-hole assembly, color sorting, and pendulum stabilization.</p>
-                <ul class="project-list">
-                    <li>Engineered custom Inverse Kinematics (IK) solver.</li>
-                    <li>Mapped full TF2 frame tree for exact spatial calibration.</li>
-                    <li>Resolved delayed target calibration to hit flawless execution metrics.</li>
-                </ul>
-            `,
-            slam: `
-                <div class="availability" style="color:#FFD700; border-color:#FFD700; background:rgba(255,215,0,0.1);">
-                    PROJECT 02 DEPLOYED
-                </div>
-                <h1 class="project-title" style="color:#FFD700;">CV, SLAM &<br>Navigation</h1>
-                <div class="project-tech">ROS 2 | YOLO | OpenCV | Nav2</div>
-                <p class="project-desc">Integrated real-time perception with autonomous mapping protocols.</p>
-                <ul class="project-list">
-                    <li>Deployed YOLO for dynamic bounding box detection.</li>
-                    <li>Built real-time map generation running at peak Hz rates.</li>
-                    <li>Synchronized raw camera feeds with LIDAR point clouds.</li>
-                </ul>
-            `,
-            motion: `
-                <div class="availability" style="color:#FF4655; border-color:#FF4655; background:rgba(255,70,85,0.1);">
-                    PROJECT 03 DEPLOYED
-                </div>
-                <h1 class="project-title" style="color:#FF4655;">Motion<br>Prediction</h1>
-                <div class="project-tech">LSTM | 1D-CNN | inD Dataset | Python</div>
-                <p class="project-desc">Deep learning model for anticipating traffic participant trajectories.</p>
-                <ul class="project-list">
-                    <li>Engineered hybrid LSTM and 1D-CNN architecture.</li>
-                    <li>Minimized ADE (Average Displacement Error) and FDE metrics.</li>
-                    <li>Generated fan-out trajectory visualizations.</li>
-                </ul>
-            `
+        // Project Data Payload
+        const projects = {
+            ur5e: { cat: "KINEMATICS", title: "6-DoF UR5e Manipulator", tech: "ROS 2 | MoveIt | Gazebo | TF2", desc: "Engineered a custom IK solver and mapped the full TF2 frame tree. Achieved 100% success rate in autonomous peg-in-hole assembly by resolving delayed target calibration." },
+            slam: { cat: "PERCEPTION", title: "SLAM & Navigation", tech: "YOLO | OpenCV | Nav2 | Lidar", desc: "Integrated real-time YOLO bounding box perception with autonomous mapping protocols. Synchronized raw camera feeds with LIDAR point clouds for dynamic environment navigation." },
+            motion: { cat: "NEURAL NETWORKS", title: "Motion Prediction", tech: "LSTM | 1D-CNN | inD Dataset | Python", desc: "Developed a hybrid deep learning model anticipating traffic participant trajectories. Minimized Average Displacement Error (ADE) to generate fan-out prediction visualizations." }
         };
 
-        const dynamicContainer = document.getElementById('dynamic-content');
-        const locText = document.getElementById('loc-text');
-        let currentProject = 'hero';
-
-        function loadContent(id) {
-            if (currentProject === id) return;
-            currentProject = id;
-            dynamicContainer.style.opacity = 0;
-            setTimeout(() => {
-                dynamicContainer.innerHTML = contentData[id];
-                dynamicContainer.style.opacity = 1;
-                locText.innerText = id.toUpperCase();
-                
-                // Change border color to match project
-                let borderColor = 'rgba(255, 70, 85, 0.2)'; // Default red
-                if (id === 'ur5e') borderColor = 'rgba(0, 161, 155, 0.4)'; // Cyan
-                if (id === 'slam') borderColor = 'rgba(255, 215, 0, 0.4)'; // Yellow
-                document.getElementById('left-panel').style.borderRightColor = borderColor;
-            }, 300);
-        }
-        
-        // Initial Load
-        dynamicContainer.innerHTML = contentData['hero'];
-
-        /* ==================================================
-           2. THREE.JS SWARM & TITAN ENGINE
-        ================================================== */
         const container = document.getElementById('webgl-container');
-        const rightPanel = document.getElementById('right-panel');
-        const titanBtn = document.getElementById('titan-btn');
-        const modeText = document.getElementById('mode-text');
-        const wasdHint = document.getElementById('wasd-hint');
-        
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x06080C, 0.0008);
-        const camera = new THREE.PerspectiveCamera(60, rightPanel.clientWidth / rightPanel.clientHeight, 0.1, 3000);
-        camera.position.set(0, 300, 1000);
-        camera.lookAt(0, -100, 0);
+        const assembleBtn = document.getElementById('assemble-btn');
+        const statusText = document.getElementById('status-text');
+        const hintText = document.getElementById('hint-text');
+        const modal = document.getElementById('project-modal');
+        const closeModal = document.getElementById('close-modal');
 
+        // Scene Setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x06080C, 0.001);
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 5000);
+        
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(rightPanel.clientWidth, rightPanel.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Grid helper for the floor
-        const gridHelper = new THREE.GridHelper(2000, 40, 0x333333, 0x111111);
-        gridHelper.position.y = -200;
-        scene.add(gridHelper);
+        // Lighting for the 3D Models
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0x00A19B, 1.5);
+        dirLight.position.set(200, 500, 300);
+        scene.add(dirLight);
+        const redLight = new THREE.DirectionalLight(0xFF4655, 1);
+        redLight.position.set(-200, 200, -300);
+        scene.add(redLight);
 
-        // PROJECT PORTALS (Nodes on the ground)
-        const portals = [
-            { id: 'ur5e', color: 0x00A19B, x: -400, z: -200 },
-            { id: 'slam', color: 0xFFD700, x: 0, z: -400 },
-            { id: 'motion', color: 0xFF4655, x: 400, z: -200 }
+        // The Grid Environment
+        const grid = new THREE.GridHelper(4000, 80, 0x00A19B, 0x11151C);
+        grid.position.y = 0;
+        scene.add(grid);
+
+        // Project Pads (Navigation Goals)
+        const pads = [
+            { id: 'ur5e', color: 0x00A19B, x: -600, z: -800 },
+            { id: 'slam', color: 0xFFD700, x: 0, z: -1200 },
+            { id: 'motion', color: 0xFF4655, x: 600, z: -800 }
         ];
 
-        portals.forEach(p => {
-            const ringGeo = new THREE.RingGeometry(60, 80, 32);
-            const ringMat = new THREE.MeshBasicMaterial({ color: p.color, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.rotation.x = -Math.PI / 2;
-            ring.position.set(p.x, -199, p.z);
-            scene.add(ring);
-            
-            // Floating Label (Simple Cube for now)
-            const boxGeo = new THREE.BoxGeometry(20, 20, 20);
-            const boxMat = new THREE.MeshBasicMaterial({ color: p.color, wireframe: true });
-            const box = new THREE.Mesh(boxGeo, boxMat);
-            box.position.set(p.x, -150, p.z);
-            scene.add(box);
-            p.mesh = box; // Store for animation
+        pads.forEach(pad => {
+            const padGeo = new THREE.CylinderGeometry(80, 80, 5, 32);
+            const padMat = new THREE.MeshStandardMaterial({ color: pad.color, emissive: pad.color, emissiveIntensity: 0.5 });
+            const padMesh = new THREE.Mesh(padGeo, padMat);
+            padMesh.position.set(pad.x, 2.5, pad.z);
+            scene.add(padMesh);
+
+            const ringGeo = new THREE.RingGeometry(90, 100, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: pad.color, side: THREE.DoubleSide });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = -Math.PI / 2;
+            ringMesh.position.set(pad.x, 1, pad.z);
+            scene.add(ringMesh);
+            pad.ring = ringMesh;
         });
 
-        // Particle System
-        const particlesCount = 5000;
-        const geometry = new THREE.BufferGeometry();
+        // ==========================================
+        // SWARM TO TITAN ENGINE (InstancedMesh)
+        // ==========================================
+        const botCount = 3000;
+        // The Mini-Robot Geometry (A cylinder resembling a TurtleBot core)
+        const botGeo = new THREE.CylinderGeometry(3, 3, 6, 8);
+        const botMat = new THREE.MeshStandardMaterial({ color: 0xFF4655, metalness: 0.8, roughness: 0.2 });
+        const instancedBots = new THREE.InstancedMesh(botGeo, botMat, botCount);
         
-        const currentPos = new Float32Array(particlesCount * 3);
-        const titanPos = new Float32Array(particlesCount * 3);
-        const swarmVel = new Float32Array(particlesCount * 3);
-        const colors = new Float32Array(particlesCount * 3);
+        const dummy = new THREE.Object3D();
+        const swarmData = [];
+        const titanData = [];
 
-        const colorRed = new THREE.Color(0xFF4655);
-        const colorCyan = new THREE.Color(0x00A19B);
+        // Generate Titan Formation & Initial Swarm Positions
+        for(let i=0; i<botCount; i++) {
+            // Swarm Logic
+            swarmData.push({
+                x: (Math.random() - 0.5) * 2000,
+                y: 10 + Math.random() * 200,
+                z: (Math.random() - 0.5) * 2000,
+                vx: (Math.random() - 0.5) * 6,
+                vy: (Math.random() - 0.5) * 2,
+                vz: (Math.random() - 0.5) * 6
+            });
 
-        for(let i = 0; i < particlesCount; i++) {
-            let idx = i * 3;
-            
-            // Random Initial Swarm
-            currentPos[idx] = (Math.random() - 0.5) * 2000;
-            currentPos[idx+1] = (Math.random() - 0.5) * 1500;
-            currentPos[idx+2] = (Math.random() - 0.5) * 2000;
-
-            swarmVel[idx] = (Math.random() - 0.5) * 4;
-            swarmVel[idx+1] = (Math.random() - 0.5) * 4;
-            swarmVel[idx+2] = (Math.random() - 0.5) * 4;
-
-            colors[idx] = colorRed.r; colors[idx+1] = colorRed.g; colors[idx+2] = colorRed.b;
-
-            // Titan Humanoid Matrix
+            // Titan Anatomy Generation (Procedural Humanoid)
             let part = Math.random();
             let tx, ty, tz;
             if (part < 0.1) { // Head
-                tx = (Math.random() - 0.5) * 60; ty = 180 + Math.random() * 60; tz = (Math.random() - 0.5) * 60;
+                tx = (Math.random() - 0.5) * 40; ty = 220 + Math.random() * 40; tz = (Math.random() - 0.5) * 40;
             } else if (part < 0.45) { // Torso
-                tx = (Math.random() - 0.5) * 140; ty = 20 + Math.random() * 160; tz = (Math.random() - 0.5) * 80;
-            } else if (part < 0.6) { // Left Arm
-                tx = -110 - Math.random() * 40; ty = 20 + Math.random() * 140; tz = (Math.random() - 0.5) * 40;
-            } else if (part < 0.75) { // Right Arm
-                tx = 110 + Math.random() * 40; ty = 20 + Math.random() * 140; tz = (Math.random() - 0.5) * 40;
-            } else if (part < 0.875) { // Left Leg
-                tx = -40 + (Math.random() - 0.5) * 50; ty = -180 + Math.random() * 200; tz = (Math.random() - 0.5) * 50;
-            } else { // Right Leg
-                tx = 40 + (Math.random() - 0.5) * 50; ty = -180 + Math.random() * 200; tz = (Math.random() - 0.5) * 50;
+                tx = (Math.random() - 0.5) * 100; ty = 80 + Math.random() * 140; tz = (Math.random() - 0.5) * 60;
+            } else if (part < 0.6) { // L Arm
+                tx = -80 - Math.random() * 30; ty = 80 + Math.random() * 120; tz = (Math.random() - 0.5) * 30;
+            } else if (part < 0.75) { // R Arm
+                tx = 80 + Math.random() * 30; ty = 80 + Math.random() * 120; tz = (Math.random() - 0.5) * 30;
+            } else if (part < 0.875) { // L Leg
+                tx = -40 + (Math.random() - 0.5) * 35; ty = 5 + Math.random() * 80; tz = (Math.random() - 0.5) * 35;
+            } else { // R Leg
+                tx = 40 + (Math.random() - 0.5) * 35; ty = 5 + Math.random() * 80; tz = (Math.random() - 0.5) * 35;
             }
-            titanPos[idx] = tx; titanPos[idx+1] = ty; titanPos[idx+2] = tz;
+            titanData.push({ x: tx, y: ty, z: tz });
+
+            dummy.position.set(swarmData[i].x, swarmData[i].y, swarmData[i].z);
+            dummy.updateMatrix();
+            instancedBots.setMatrixAt(i, dummy.matrix);
         }
+        scene.add(instancedBots);
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(currentPos, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({ size: 3.5, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.9 });
-        const particlesMesh = new THREE.Points(geometry, material);
-        scene.add(particlesMesh);
-
-        // State and Controls
+        // State Machine
         let isTitan = false;
-        let titanOffset = { x: 0, z: 0 };
+        let titanWorldPos = new THREE.Vector3(0, 0, 0); // Where the Titan is on the grid
+        let activeModal = false;
+        
+        // WASD Controls
         const keys = { w: false, a: false, s: false, d: false };
 
-        titanBtn.addEventListener('click', () => {
+        assembleBtn.addEventListener('click', () => {
             isTitan = !isTitan;
-            container.focus(); // Focus canvas for WASD
+            container.focus();
             if(isTitan) {
-                titanBtn.innerText = "SCATTER SWARM";
-                titanBtn.classList.add('active');
-                modeText.innerText = "TITAN ASSEMBLED";
-                modeText.style.color = "#00A19B";
-                wasdHint.style.display = "block";
+                assembleBtn.innerText = "SCATTER PROTOCOL";
+                assembleBtn.classList.add('active');
+                statusText.innerText = "TITAN ONLINE";
+                statusText.style.color = "var(--petronas-cyan)";
+                hintText.innerHTML = "[ USE <span>W A S D</span> TO PILOT TITAN TO PROJECT PADS ]";
+                botMat.color.setHex(0x00A19B); // Shift bots to Cyan
             } else {
-                titanBtn.innerText = "ACTIVATE TITAN";
-                titanBtn.classList.remove('active');
-                modeText.innerText = "SCATTERED";
-                modeText.style.color = "#FF4655";
-                wasdHint.style.display = "none";
-                loadContent('hero'); // Reset UI
-                for(let i=0; i<particlesCount*3; i+=3) {
-                    swarmVel[i] = (Math.random() - 0.5) * 25;
-                    swarmVel[i+1] = (Math.random() - 0.5) * 25;
-                    swarmVel[i+2] = (Math.random() - 0.5) * 25;
+                assembleBtn.innerText = "ACTIVATE TITAN";
+                assembleBtn.classList.remove('active');
+                statusText.innerText = "ROAMING";
+                statusText.style.color = "var(--raze-red)";
+                hintText.innerHTML = "<span>[ CLICK BUTTON TO ASSEMBLE TITAN ]</span>";
+                botMat.color.setHex(0xFF4655); // Shift back to Red
+                
+                // Explosive scatter velocity
+                for(let i=0; i<botCount; i++) {
+                    swarmData[i].vx = (Math.random() - 0.5) * 40;
+                    swarmData[i].vy = Math.random() * 20;
+                    swarmData[i].vz = (Math.random() - 0.5) * 40;
                 }
             }
         });
 
-        // WASD Listeners
-        container.addEventListener('keydown', (e) => { const key = e.key.toLowerCase(); if(keys.hasOwnProperty(key)) keys[key] = true; });
-        container.addEventListener('keyup', (e) => { const key = e.key.toLowerCase(); if(keys.hasOwnProperty(key)) keys[key] = false; });
+        // Close Modal
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('visible');
+            activeModal = false;
+            container.focus();
+        });
 
+        container.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true; });
+        container.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false; });
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+        
         function animate() {
             requestAnimationFrame(animate);
-            const positions = geometry.attributes.position.array;
-            const cols = geometry.attributes.color.array;
+            let delta = clock.getDelta();
 
-            // Animate Portals
-            portals.forEach(p => { p.mesh.rotation.x += 0.02; p.mesh.rotation.y += 0.02; });
+            // Animate Project Pads
+            pads.forEach(p => { p.ring.rotation.z += 0.02; });
 
-            if (isTitan) {
-                // WASD Logic
-                let speed = 10.0;
-                if (keys.w) titanOffset.z -= speed;
-                if (keys.s) titanOffset.z += speed;
-                if (keys.a) titanOffset.x -= speed;
-                if (keys.d) titanOffset.x += speed;
+            if (isTitan && !activeModal) {
+                // Move Titan Base Position
+                let speed = 600 * delta;
+                if (keys.w) titanWorldPos.z -= speed;
+                if (keys.s) titanWorldPos.z += speed;
+                if (keys.a) titanWorldPos.x -= speed;
+                if (keys.d) titanWorldPos.x += speed;
 
-                // Portal Collision Detection
-                portals.forEach(p => {
-                    let dist = Math.hypot(titanOffset.x - p.x, titanOffset.z - p.z);
-                    if (dist < 80) loadContent(p.id);
+                // Check Pad Collision
+                pads.forEach(p => {
+                    if (Math.hypot(titanWorldPos.x - p.x, titanWorldPos.z - p.z) < 80) {
+                        // Trigger Modal
+                        activeModal = true;
+                        document.getElementById('m-category').innerText = projects[p.id].cat;
+                        document.getElementById('m-title').innerHTML = projects[p.id].title;
+                        document.getElementById('m-tech').innerText = projects[p.id].tech;
+                        document.getElementById('m-desc').innerText = projects[p.id].desc;
+                        modal.classList.add('visible');
+                        
+                        // Bounce Titan back slightly so it doesn't get stuck in the trigger
+                        titanWorldPos.z += 100;
+                    }
                 });
 
-                for(let i = 0; i < particlesCount; i++) {
-                    let idx = i * 3;
-                    // Snap to Titan
-                    positions[idx] += (titanPos[idx] + titanOffset.x - positions[idx]) * 0.1;
-                    positions[idx+1] += (titanPos[idx+1] - positions[idx+1]) * 0.1;
-                    positions[idx+2] += (titanPos[idx+2] + titanOffset.z - positions[idx+2]) * 0.1;
-                    // Shift to Cyan
-                    cols[idx] += (colorCyan.r - cols[idx]) * 0.1; cols[idx+1] += (colorCyan.g - cols[idx+1]) * 0.1; cols[idx+2] += (colorCyan.b - cols[idx+2]) * 0.1;
-                }
-            } else {
-                for(let i = 0; i < particlesCount; i++) {
-                    let idx = i * 3;
-                    // Roam
-                    positions[idx] += swarmVel[idx]; positions[idx+1] += swarmVel[idx+1]; positions[idx+2] += swarmVel[idx+2];
-                    if (positions[idx] > 1000 || positions[idx] < -1000) swarmVel[idx] *= -1;
-                    if (positions[idx+1] > 800 || positions[idx+1] < -200) swarmVel[idx+1] *= -1; // Keep above floor
-                    if (positions[idx+2] > 1000 || positions[idx+2] < -1000) swarmVel[idx+2] *= -1;
+                // Lerp Bots into Titan Shape
+                for(let i=0; i<botCount; i++) {
+                    swarmData[i].x += ((titanData[i].x + titanWorldPos.x) - swarmData[i].x) * 0.15;
+                    swarmData[i].y += (titanData[i].y - swarmData[i].y) * 0.15;
+                    swarmData[i].z += ((titanData[i].z + titanWorldPos.z) - swarmData[i].z) * 0.15;
                     
-                    swarmVel[idx] = swarmVel[idx] * 0.98 + (Math.random() - 0.5) * 0.3;
-                    swarmVel[idx+1] = swarmVel[idx+1] * 0.98 + (Math.random() - 0.5) * 0.3;
-                    swarmVel[idx+2] = swarmVel[idx+2] * 0.98 + (Math.random() - 0.5) * 0.3;
-
-                    cols[idx] += (colorRed.r - cols[idx]) * 0.1; cols[idx+1] += (colorRed.g - cols[idx+1]) * 0.1; cols[idx+2] += (colorRed.b - cols[idx+2]) * 0.1;
+                    dummy.position.set(swarmData[i].x, swarmData[i].y, swarmData[i].z);
+                    dummy.updateMatrix();
+                    instancedBots.setMatrixAt(i, dummy.matrix);
                 }
+
+                // Third-Person Camera follow
+                let targetCamX = titanWorldPos.x;
+                let targetCamY = titanWorldPos.y + 300;
+                let targetCamZ = titanWorldPos.z + 600;
+                
+                camera.position.x += (targetCamX - camera.position.x) * 0.05;
+                camera.position.y += (targetCamY - camera.position.y) * 0.05;
+                camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+                camera.lookAt(titanWorldPos.x, titanWorldPos.y + 100, titanWorldPos.z);
+
+            } else if (!isTitan) {
+                // Swarm Logic
+                for(let i=0; i<botCount; i++) {
+                    let b = swarmData[i];
+                    b.x += b.vx; b.y += b.vy; b.z += b.vz;
+                    
+                    // Boundary bouncing
+                    if(b.x > 1500 || b.x < -1500) b.vx *= -1;
+                    if(b.y > 600) b.vy *= -1;
+                    if(b.y < 10) { b.y = 10; b.vy *= -1; }
+                    if(b.z > 1500 || b.z < -1500) b.vz *= -1;
+
+                    // Friction and random drift
+                    b.vx = b.vx * 0.98 + (Math.random() - 0.5) * 0.5;
+                    b.vy = b.vy * 0.98 + (Math.random() - 0.5) * 0.5;
+                    b.vz = b.vz * 0.98 + (Math.random() - 0.5) * 0.5;
+
+                    dummy.position.set(b.x, b.y, b.z);
+                    // Add some rotation to the bots as they fly
+                    dummy.rotation.x += b.vx * 0.02;
+                    dummy.rotation.y += b.vy * 0.02;
+                    dummy.updateMatrix();
+                    instancedBots.setMatrixAt(i, dummy.matrix);
+                }
+
+                // Idle Camera Sweep
+                camera.position.x = Math.sin(Date.now() * 0.0002) * 1200;
+                camera.position.z = Math.cos(Date.now() * 0.0002) * 1200;
+                camera.position.y = 600;
+                camera.lookAt(0, 0, 0);
             }
 
-            geometry.attributes.position.needsUpdate = true;
-            geometry.attributes.color.needsUpdate = true;
+            instancedBots.instanceMatrix.needsUpdate = true;
             renderer.render(scene, camera);
         }
         animate();
 
         window.addEventListener('resize', () => {
-            camera.aspect = rightPanel.clientWidth / rightPanel.clientHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(rightPanel.clientWidth, rightPanel.clientHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
