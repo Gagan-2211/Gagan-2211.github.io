@@ -82,7 +82,6 @@
         }
         #close-modal:hover { color: var(--raze-red); }
 
-        /* Crosshair */
         .crosshair { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: rgba(255,255,255,0.5); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
     </style>
 </head>
@@ -95,7 +94,7 @@
         <div class="top-bar">
             <div class="logo">&lt;KGC.LAB/&gt;</div>
             <div class="telemetry">
-                ENGINE: <span>INSTANCED MESH v3</span><br>
+                ENGINE: <span>TURTLEBOT SWARM v4</span><br>
                 UNITS: <span id="unit-count">3,000</span><br>
                 STATUS: <span id="status-text" style="color:var(--raze-red);">ROAMING</span>
             </div>
@@ -114,13 +113,16 @@
         <div class="modal-category" id="m-category">SYSTEM.NODE</div>
         <div class="modal-title" id="m-title">PROJECT NAME</div>
         <div class="modal-tech" id="m-tech">TECH STACK HERE</div>
-        <div class="modal-desc" id="m-desc">Project description goes here. Detailed metrics and kinematics data.</div>
+        <div class="modal-desc" id="m-desc">Project description goes here.</div>
         <a href="#" class="modal-btn">ACCESS REPOSITORY</a>
     </div>
 
+    <!-- Core Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- BufferGeometryUtils required to merge geometries for the Turtlebot -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+    
     <script>
-        // Project Data Payload
         const projects = {
             ur5e: { cat: "KINEMATICS", title: "6-DoF UR5e Manipulator", tech: "ROS 2 | MoveIt | Gazebo | TF2", desc: "Engineered a custom IK solver and mapped the full TF2 frame tree. Achieved 100% success rate in autonomous peg-in-hole assembly by resolving delayed target calibration." },
             slam: { cat: "PERCEPTION", title: "SLAM & Navigation", tech: "YOLO | OpenCV | Nav2 | Lidar", desc: "Integrated real-time YOLO bounding box perception with autonomous mapping protocols. Synchronized raw camera feeds with LIDAR point clouds for dynamic environment navigation." },
@@ -134,7 +136,6 @@
         const modal = document.getElementById('project-modal');
         const closeModal = document.getElementById('close-modal');
 
-        // Scene Setup
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x06080C, 0.001);
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 5000);
@@ -144,22 +145,19 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Lighting for the 3D Models
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0x00A19B, 1.5);
+        const dirLight = new THREE.DirectionalLight(0x00A19B, 1.2);
         dirLight.position.set(200, 500, 300);
         scene.add(dirLight);
-        const redLight = new THREE.DirectionalLight(0xFF4655, 1);
+        const redLight = new THREE.DirectionalLight(0xFF4655, 1.2);
         redLight.position.set(-200, 200, -300);
         scene.add(redLight);
 
-        // The Grid Environment
         const grid = new THREE.GridHelper(4000, 80, 0x00A19B, 0x11151C);
         grid.position.y = 0;
         scene.add(grid);
 
-        // Project Pads (Navigation Goals)
         const pads = [
             { id: 'ur5e', color: 0x00A19B, x: -600, z: -800 },
             { id: 'slam', color: 0xFFD700, x: 0, z: -1200 },
@@ -168,7 +166,7 @@
 
         pads.forEach(pad => {
             const padGeo = new THREE.CylinderGeometry(80, 80, 5, 32);
-            const padMat = new THREE.MeshStandardMaterial({ color: pad.color, emissive: pad.color, emissiveIntensity: 0.5 });
+            const padMat = new THREE.MeshStandardMaterial({ color: pad.color, emissive: pad.color, emissiveIntensity: 0.3 });
             const padMesh = new THREE.Mesh(padGeo, padMat);
             padMesh.position.set(pad.x, 2.5, pad.z);
             scene.add(padMesh);
@@ -183,21 +181,31 @@
         });
 
         // ==========================================
-        // SWARM TO TITAN ENGINE (InstancedMesh)
+        // PROCEDURAL TURTLEBOT GEOMETRY
         // ==========================================
+        // We merge 3 shapes (Base, Deck, Lidar) into one single geometry to use in the InstancedMesh
+        const botBase = new THREE.CylinderGeometry(5, 5, 2, 12);
+        botBase.translate(0, 1, 0); // Lift above ground
+        
+        const botDeck = new THREE.CylinderGeometry(4.5, 4.5, 3, 12);
+        botDeck.translate(0, 3.5, 0);
+        
+        const botLidar = new THREE.CylinderGeometry(1.5, 1.5, 1.5, 10);
+        botLidar.translate(0, 5.75, 0); // Put lidar puck on top
+
+        // Combine into one Turtlebot model
+        const turtleBotGeo = THREE.BufferGeometryUtils.mergeBufferGeometries([botBase, botDeck, botLidar]);
+        const botMat = new THREE.MeshStandardMaterial({ color: 0xFF4655, metalness: 0.6, roughness: 0.4 });
+        
         const botCount = 3000;
-        // The Mini-Robot Geometry (A cylinder resembling a TurtleBot core)
-        const botGeo = new THREE.CylinderGeometry(3, 3, 6, 8);
-        const botMat = new THREE.MeshStandardMaterial({ color: 0xFF4655, metalness: 0.8, roughness: 0.2 });
-        const instancedBots = new THREE.InstancedMesh(botGeo, botMat, botCount);
+        const instancedBots = new THREE.InstancedMesh(turtleBotGeo, botMat, botCount);
         
         const dummy = new THREE.Object3D();
         const swarmData = [];
         const titanData = [];
 
-        // Generate Titan Formation & Initial Swarm Positions
         for(let i=0; i<botCount; i++) {
-            // Swarm Logic
+            // Roaming Swarm Start
             swarmData.push({
                 x: (Math.random() - 0.5) * 2000,
                 y: 10 + Math.random() * 200,
@@ -207,7 +215,7 @@
                 vz: (Math.random() - 0.5) * 6
             });
 
-            // Titan Anatomy Generation (Procedural Humanoid)
+            // Titan Humanoid Map
             let part = Math.random();
             let tx, ty, tz;
             if (part < 0.1) { // Head
@@ -233,10 +241,9 @@
 
         // State Machine
         let isTitan = false;
-        let titanWorldPos = new THREE.Vector3(0, 0, 0); // Where the Titan is on the grid
+        let titanWorldPos = new THREE.Vector3(0, 0, 0); 
         let activeModal = false;
         
-        // WASD Controls
         const keys = { w: false, a: false, s: false, d: false };
 
         assembleBtn.addEventListener('click', () => {
@@ -248,16 +255,16 @@
                 statusText.innerText = "TITAN ONLINE";
                 statusText.style.color = "var(--petronas-cyan)";
                 hintText.innerHTML = "[ USE <span>W A S D</span> TO PILOT TITAN TO PROJECT PADS ]";
-                botMat.color.setHex(0x00A19B); // Shift bots to Cyan
+                botMat.color.setHex(0x00A19B); 
             } else {
                 assembleBtn.innerText = "ACTIVATE TITAN";
                 assembleBtn.classList.remove('active');
                 statusText.innerText = "ROAMING";
                 statusText.style.color = "var(--raze-red)";
                 hintText.innerHTML = "<span>[ CLICK BUTTON TO ASSEMBLE TITAN ]</span>";
-                botMat.color.setHex(0xFF4655); // Shift back to Red
+                botMat.color.setHex(0xFF4655); 
                 
-                // Explosive scatter velocity
+                // Explosive scatter
                 for(let i=0; i<botCount; i++) {
                     swarmData[i].vx = (Math.random() - 0.5) * 40;
                     swarmData[i].vy = Math.random() * 20;
@@ -266,7 +273,6 @@
             }
         });
 
-        // Close Modal
         closeModal.addEventListener('click', () => {
             modal.classList.remove('visible');
             activeModal = false;
@@ -276,52 +282,46 @@
         container.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true; });
         container.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false; });
 
-        // Animation Loop
         const clock = new THREE.Clock();
         
         function animate() {
             requestAnimationFrame(animate);
             let delta = clock.getDelta();
 
-            // Animate Project Pads
             pads.forEach(p => { p.ring.rotation.z += 0.02; });
 
             if (isTitan && !activeModal) {
-                // Move Titan Base Position
+                // WASD Titan Movement
                 let speed = 600 * delta;
                 if (keys.w) titanWorldPos.z -= speed;
                 if (keys.s) titanWorldPos.z += speed;
                 if (keys.a) titanWorldPos.x -= speed;
                 if (keys.d) titanWorldPos.x += speed;
 
-                // Check Pad Collision
                 pads.forEach(p => {
                     if (Math.hypot(titanWorldPos.x - p.x, titanWorldPos.z - p.z) < 80) {
-                        // Trigger Modal
                         activeModal = true;
                         document.getElementById('m-category').innerText = projects[p.id].cat;
                         document.getElementById('m-title').innerHTML = projects[p.id].title;
                         document.getElementById('m-tech').innerText = projects[p.id].tech;
                         document.getElementById('m-desc').innerText = projects[p.id].desc;
                         modal.classList.add('visible');
-                        
-                        // Bounce Titan back slightly so it doesn't get stuck in the trigger
                         titanWorldPos.z += 100;
                     }
                 });
 
-                // Lerp Bots into Titan Shape
                 for(let i=0; i<botCount; i++) {
                     swarmData[i].x += ((titanData[i].x + titanWorldPos.x) - swarmData[i].x) * 0.15;
                     swarmData[i].y += (titanData[i].y - swarmData[i].y) * 0.15;
                     swarmData[i].z += ((titanData[i].z + titanWorldPos.z) - swarmData[i].z) * 0.15;
                     
                     dummy.position.set(swarmData[i].x, swarmData[i].y, swarmData[i].z);
+                    dummy.rotation.set(0, 0, 0); // Lock rotation in Titan mode
                     dummy.updateMatrix();
                     instancedBots.setMatrixAt(i, dummy.matrix);
                 }
 
-                // Third-Person Camera follow
+                // Follow Camera
                 let targetCamX = titanWorldPos.x;
                 let targetCamY = titanWorldPos.y + 300;
                 let targetCamZ = titanWorldPos.z + 600;
@@ -337,26 +337,26 @@
                     let b = swarmData[i];
                     b.x += b.vx; b.y += b.vy; b.z += b.vz;
                     
-                    // Boundary bouncing
                     if(b.x > 1500 || b.x < -1500) b.vx *= -1;
                     if(b.y > 600) b.vy *= -1;
                     if(b.y < 10) { b.y = 10; b.vy *= -1; }
                     if(b.z > 1500 || b.z < -1500) b.vz *= -1;
 
-                    // Friction and random drift
                     b.vx = b.vx * 0.98 + (Math.random() - 0.5) * 0.5;
                     b.vy = b.vy * 0.98 + (Math.random() - 0.5) * 0.5;
                     b.vz = b.vz * 0.98 + (Math.random() - 0.5) * 0.5;
 
                     dummy.position.set(b.x, b.y, b.z);
-                    // Add some rotation to the bots as they fly
-                    dummy.rotation.x += b.vx * 0.02;
-                    dummy.rotation.y += b.vy * 0.02;
+                    
+                    // Rotate the TurtleBot to face the direction it is driving/flying
+                    let angle = Math.atan2(b.vx, b.vz);
+                    dummy.rotation.set(0, angle, 0);
+                    
                     dummy.updateMatrix();
                     instancedBots.setMatrixAt(i, dummy.matrix);
                 }
 
-                // Idle Camera Sweep
+                // Idle Sweep
                 camera.position.x = Math.sin(Date.now() * 0.0002) * 1200;
                 camera.position.z = Math.cos(Date.now() * 0.0002) * 1200;
                 camera.position.y = 600;
