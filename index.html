@@ -154,11 +154,17 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        // --- UPGRADED LIGHTING FOR VISIBILITY ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9); // Brighter ambient
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0x00A19B, 1.5);
-        dirLight.position.set(200, 500, 300);
-        scene.add(dirLight);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2); // White main light
+        mainLight.position.set(200, 500, 300);
+        scene.add(mainLight);
+
+        const cyanFill = new THREE.DirectionalLight(0x00A19B, 0.8); // Cyan fill light
+        cyanFill.position.set(-200, 100, -200);
+        scene.add(cyanFill);
 
         const grid = new THREE.GridHelper(4000, 100, 0x00A19B, 0x11151C);
         grid.position.y = 0;
@@ -181,49 +187,48 @@
         });
 
         // ==========================================
-        // SPD / VOLTRON ASSEMBLY ROBOTS
+        // SPD / VOLTRON ASSEMBLY ROBOTS (NOW VISIBLE)
         // ==========================================
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.8, roughness: 0.3 });
-        const accentMat = new THREE.MeshStandardMaterial({ color: 0x00A19B, metalness: 0.9, roughness: 0.1 });
-        const visorMat = new THREE.MeshBasicMaterial({ color: 0xFF4655 });
+        // Brighter, highly visible materials
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.4, roughness: 0.5 }); // Silver
+        const darkAccentMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.7, roughness: 0.3 }); // Dark Metal
+        const accentMat = new THREE.MeshStandardMaterial({ color: 0x00A19B, metalness: 0.6, roughness: 0.2 }); // Cyan
+        const visorMat = new THREE.MeshBasicMaterial({ color: 0xFF4655 }); // Glowing Red
 
-        // Function to create distinct components that fit perfectly together
         function createVehicle(type) {
             const group = new THREE.Group();
             let mesh;
 
             if (type === 'torso') {
-                // Large heavy transport core
                 mesh = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 20), bodyMat);
                 const core = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 21), accentMat);
                 group.add(mesh);
                 group.add(core);
             } 
             else if (type === 'head') {
-                // Command jet / head unit
                 mesh = new THREE.Mesh(new THREE.BoxGeometry(12, 12, 14), bodyMat);
                 const visor = new THREE.Mesh(new THREE.BoxGeometry(8, 3, 1), visorMat);
-                visor.position.set(0, 2, 7);
+                visor.position.set(0, 2, 7.1);
                 group.add(mesh);
                 group.add(visor);
             }
             else if (type === 'arm') {
-                // Drill / Crane unit (Arms)
                 mesh = new THREE.Mesh(new THREE.BoxGeometry(10, 35, 10), bodyMat);
+                const joint = new THREE.Mesh(new THREE.BoxGeometry(11, 8, 11), darkAccentMat);
+                joint.position.y = 10;
                 group.add(mesh);
+                group.add(joint);
             }
             else if (type === 'leg') {
-                // Heavy tread units (Legs)
                 mesh = new THREE.Mesh(new THREE.BoxGeometry(14, 40, 16), bodyMat);
-                const tread = new THREE.Mesh(new THREE.BoxGeometry(16, 10, 18), accentMat);
-                tread.position.y = -15; // Boot
+                const tread = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 18), darkAccentMat);
+                tread.position.y = -14; 
                 group.add(mesh);
                 group.add(tread);
             }
             return group;
         }
 
-        // 0: Head, 1: Torso, 2: L-Arm, 3: R-Arm, 4: L-Leg, 5: R-Leg
         const robots = [
             createVehicle('head'),
             createVehicle('torso'),
@@ -233,14 +238,13 @@
             createVehicle('leg')
         ];
 
-        // Scatter them wildly
         const scatterPositions = [
-            new THREE.Vector3(0, 150, -100),    // Head flying high
-            new THREE.Vector3(0, 20, 150),      // Torso parked in front
-            new THREE.Vector3(-200, 20, 0),     // L-arm parked left
-            new THREE.Vector3(200, 20, 0),      // R-arm parked right
-            new THREE.Vector3(-100, 20, -200),  // L-leg parked back-left
-            new THREE.Vector3(100, 20, -200)    // R-leg parked back-right
+            new THREE.Vector3(0, 150, -100),
+            new THREE.Vector3(0, 20, 150),
+            new THREE.Vector3(-200, 20, 0),
+            new THREE.Vector3(200, 20, 0),
+            new THREE.Vector3(-100, 20, -200),
+            new THREE.Vector3(100, 20, -200)
         ];
 
         robots.forEach((bot, i) => {
@@ -248,21 +252,17 @@
             scene.add(bot);
         });
 
-        // Exact interlocking anatomical offsets (no gaps, forms a solid humanoid)
-        // Torso is 30 units tall (Y = -15 to +15). 
-        // Head is 12 units tall (Y = -6 to +6).
-        // Legs are 40 units tall (Y = -20 to +20).
         const humanoidOffsets = [
-            new THREE.Vector3(0, 21, 0),     // Head: Top of Torso(15) + Bottom of Head(6) = 21
-            new THREE.Vector3(0, 0, 0),      // Torso: Center pivot
-            new THREE.Vector3(-20, -2.5, 0), // L-Arm: Left edge of Torso(-15) - Half Arm width(-5) = -20
-            new THREE.Vector3(20, -2.5, 0),  // R-Arm: Right edge of Torso(15) + Half Arm width(5) = 20
-            new THREE.Vector3(-8, -35, 0),   // L-Leg: Bottom of Torso(-15) - Half Leg height(-20) = -35
-            new THREE.Vector3(8, -35, 0)     // R-Leg: Bottom of Torso(-15) - Half Leg height(-20) = -35
+            new THREE.Vector3(0, 21, 0),
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(-20, -2.5, 0),
+            new THREE.Vector3(20, -2.5, 0),
+            new THREE.Vector3(-8, -35, 0),
+            new THREE.Vector3(8, -35, 0)
         ];
 
         let isAssembled = false;
-        let humanoidPivot = new THREE.Vector3(0, 35, 0); // Lifted up so legs touch the grid
+        let humanoidPivot = new THREE.Vector3(0, 35, 0); 
         let activeModal = false;
         const keys = { w: false, a: false, s: false, d: false };
 
@@ -308,11 +308,10 @@
                         document.getElementById('m-title').innerHTML = projects[p.id].title;
                         document.getElementById('m-desc').innerText = projects[p.id].desc;
                         modal.classList.add('visible');
-                        humanoidPivot.z += 60; // Bounce back
+                        humanoidPivot.z += 60; 
                     }
                 });
 
-                // Snap pieces perfectly edge-to-edge
                 robots.forEach((bot, i) => {
                     let targetX = humanoidPivot.x + humanoidOffsets[i].x;
                     let targetY = humanoidPivot.y + humanoidOffsets[i].y;
@@ -322,30 +321,27 @@
                     bot.position.y += (targetY - bot.position.y) * 0.15;
                     bot.position.z += (targetZ - bot.position.z) * 0.15;
                     
-                    bot.rotation.set(0, 0, 0); // Lock rotation forward
+                    bot.rotation.set(0, 0, 0); 
                 });
 
-                // Walking animation: pump arms and legs if moving
                 if (keys.w || keys.s || keys.a || keys.d) {
                     let walkCycle = Math.sin(Date.now() * 0.01);
-                    robots[2].position.z += walkCycle * 10; // L-arm
-                    robots[3].position.z -= walkCycle * 10; // R-arm
-                    robots[4].position.z -= walkCycle * 10; // L-leg
-                    robots[5].position.z += walkCycle * 10; // R-leg
+                    robots[2].position.z += walkCycle * 10;
+                    robots[3].position.z -= walkCycle * 10;
+                    robots[4].position.z -= walkCycle * 10;
+                    robots[5].position.z += walkCycle * 10;
                 }
 
-                // Camera follow
                 camera.position.x += (humanoidPivot.x - camera.position.x) * 0.05;
                 camera.position.y += ((humanoidPivot.y + 70) - camera.position.y) * 0.05;
                 camera.position.z += ((humanoidPivot.z + 200) - camera.position.z) * 0.05;
                 camera.lookAt(humanoidPivot.x, humanoidPivot.y, humanoidPivot.z);
                 
             } else if (!isAssembled) {
-                // Scattered Idle Animation (looking like parked/hovering vehicles)
                 let time = Date.now() * 0.001;
                 robots.forEach((bot, i) => {
                     bot.position.y = scatterPositions[i].y + Math.sin(time + i) * 3;
-                    bot.rotation.y = time * 0.2; // Slowly spinning to show their shapes
+                    bot.rotation.y = time * 0.2; 
                 });
             }
 
