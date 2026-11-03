@@ -66,7 +66,7 @@
         }
         .space-hint.hidden { opacity: 0; }
 
-        /* HUD that appears AFTER assembly */
+        /* HUD */
         .game-hud {
             position: absolute; top: 2rem; right: 2rem; font-family: var(--font-tech);
             font-size: 0.8rem; color: var(--silver); text-align: right; z-index: 5;
@@ -95,7 +95,6 @@
 
     <div id="webgl-container" tabindex="0"></div>
 
-    <!-- Centered Hero Information -->
     <div class="centered-ui" id="hero-ui">
         <div class="logo">&lt;KGC.LAB/&gt;</div>
         <h1>Gagan Chaitanya</h1>
@@ -117,12 +116,11 @@
     <div class="space-hint" id="space-hint">[ PRESS SPACE TO ASSEMBLE ]</div>
 
     <div class="game-hud" id="game-hud">
-        SYSTEM: <span>HUMANOID ONLINE</span><br>
+        SYSTEM: <span>TITAN MECH ONLINE</span><br>
         CONTROLS: <span>W A S D</span><br>
         OBJECTIVE: <span>NAVIGATE TO PROJECTS</span>
     </div>
 
-    <!-- Project Modal -->
     <div id="project-modal">
         <button id="close-modal">X</button>
         <div class="modal-title" id="m-title">PROJECT NAME</div>
@@ -147,30 +145,29 @@
         const closeModal = document.getElementById('close-modal');
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x06080C, 0.0015);
+        scene.fog = new THREE.FogExp2(0x06080C, 0.0012);
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
-        camera.position.set(0, 50, 400);
+        camera.position.set(0, 80, 450);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
         const dirLight = new THREE.DirectionalLight(0x00A19B, 1.5);
         dirLight.position.set(200, 500, 300);
         scene.add(dirLight);
 
         const grid = new THREE.GridHelper(4000, 100, 0x00A19B, 0x11151C);
-        grid.position.y = -20;
+        grid.position.y = 0;
         scene.add(grid);
 
-        // Project Portals
         const pads = [
-            { id: 'ur5e', color: 0x00A19B, x: -300, z: -400 },
+            { id: 'ur5e', color: 0x00A19B, x: -350, z: -400 },
             { id: 'slam', color: 0xFFD700, x: 0, z: -600 },
-            { id: 'motion', color: 0xFF4655, x: 300, z: -400 }
+            { id: 'motion', color: 0xFF4655, x: 350, z: -400 }
         ];
 
         pads.forEach(pad => {
@@ -178,94 +175,97 @@
             const ringMat = new THREE.MeshBasicMaterial({ color: pad.color, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
             const ringMesh = new THREE.Mesh(ringGeo, ringMat);
             ringMesh.rotation.x = -Math.PI / 2;
-            ringMesh.position.set(pad.x, -19, pad.z);
+            ringMesh.position.set(pad.x, 1, pad.z);
             scene.add(ringMesh);
             pad.mesh = ringMesh;
         });
 
         // ==========================================
-        // CREATE PROPER MINI-ROBOTS
+        // SPD / VOLTRON ASSEMBLY ROBOTS
         // ==========================================
-        /* 
-           NOTE TO GAGAN: To replace these constructed shapes with a real .glb file later, 
-           you will use THREE.GLTFLoader() here instead of building the groups manually.
-        */
-        function createMiniRobot() {
-            const botGroup = new THREE.Group();
-            
-            // Body
-            const bodyGeo = new THREE.BoxGeometry(15, 20, 15);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.2 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            botGroup.add(body);
-            
-            // Head with glowing eye
-            const headGeo = new THREE.BoxGeometry(10, 10, 10);
-            const head = new THREE.Mesh(headGeo, bodyMat);
-            head.position.y = 15;
-            const eyeGeo = new THREE.BoxGeometry(6, 2, 1);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xFF4655 });
-            const eye = new THREE.Mesh(eyeGeo, eyeMat);
-            eye.position.set(0, 0, 5.1);
-            head.add(eye);
-            botGroup.add(head);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.8, roughness: 0.3 });
+        const accentMat = new THREE.MeshStandardMaterial({ color: 0x00A19B, metalness: 0.9, roughness: 0.1 });
+        const visorMat = new THREE.MeshBasicMaterial({ color: 0xFF4655 });
 
-            // Tracks/Wheels
-            const trackGeo = new THREE.BoxGeometry(4, 10, 20);
-            const trackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-            const leftTrack = new THREE.Mesh(trackGeo, trackMat);
-            leftTrack.position.set(-9, -5, 0);
-            const rightTrack = new THREE.Mesh(trackGeo, trackMat);
-            rightTrack.position.set(9, -5, 0);
-            botGroup.add(leftTrack);
-            botGroup.add(rightTrack);
+        // Function to create distinct components that fit perfectly together
+        function createVehicle(type) {
+            const group = new THREE.Group();
+            let mesh;
 
-            return botGroup;
+            if (type === 'torso') {
+                // Large heavy transport core
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 20), bodyMat);
+                const core = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 21), accentMat);
+                group.add(mesh);
+                group.add(core);
+            } 
+            else if (type === 'head') {
+                // Command jet / head unit
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(12, 12, 14), bodyMat);
+                const visor = new THREE.Mesh(new THREE.BoxGeometry(8, 3, 1), visorMat);
+                visor.position.set(0, 2, 7);
+                group.add(mesh);
+                group.add(visor);
+            }
+            else if (type === 'arm') {
+                // Drill / Crane unit (Arms)
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(10, 35, 10), bodyMat);
+                group.add(mesh);
+            }
+            else if (type === 'leg') {
+                // Heavy tread units (Legs)
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(14, 40, 16), bodyMat);
+                const tread = new THREE.Mesh(new THREE.BoxGeometry(16, 10, 18), accentMat);
+                tread.position.y = -15; // Boot
+                group.add(mesh);
+                group.add(tread);
+            }
+            return group;
         }
 
-        // We need exactly 6 robots to form 6 body parts of the Humanoid
-        const robots = [];
-        for(let i=0; i<6; i++) {
-            let bot = createMiniRobot();
-            scene.add(bot);
-            robots.push(bot);
-        }
+        // 0: Head, 1: Torso, 2: L-Arm, 3: R-Arm, 4: L-Leg, 5: R-Leg
+        const robots = [
+            createVehicle('head'),
+            createVehicle('torso'),
+            createVehicle('arm'),
+            createVehicle('arm'),
+            createVehicle('leg'),
+            createVehicle('leg')
+        ];
 
-        // Scatter robots around the edges of the screen
-        // Positions: 0:Top-Left, 1:Mid-Left, 2:Bottom-Left, 3:Bottom, 4:Bottom-Right, 5:Top-Right
+        // Scatter them wildly
         const scatterPositions = [
-            new THREE.Vector3(-250, 150, 0),
-            new THREE.Vector3(-300, 0, 50),
-            new THREE.Vector3(-250, -10, 100),
-            new THREE.Vector3(0, -10, 150),
-            new THREE.Vector3(250, -10, 100),
-            new THREE.Vector3(250, 150, 0)
+            new THREE.Vector3(0, 150, -100),    // Head flying high
+            new THREE.Vector3(0, 20, 150),      // Torso parked in front
+            new THREE.Vector3(-200, 20, 0),     // L-arm parked left
+            new THREE.Vector3(200, 20, 0),      // R-arm parked right
+            new THREE.Vector3(-100, 20, -200),  // L-leg parked back-left
+            new THREE.Vector3(100, 20, -200)    // R-leg parked back-right
         ];
 
-        // Target anatomical positions when assembled into a Humanoid (Relative to a center pivot)
-        const humanoidOffsets = [
-            new THREE.Vector3(0, 45, 0),    // Robot 0 becomes Head
-            new THREE.Vector3(0, 15, 0),    // Robot 1 becomes Torso
-            new THREE.Vector3(-25, 15, 0),  // Robot 2 becomes Left Arm
-            new THREE.Vector3(25, 15, 0),   // Robot 3 becomes Right Arm
-            new THREE.Vector3(-12, -15, 0), // Robot 4 becomes Left Leg
-            new THREE.Vector3(12, -15, 0)   // Robot 5 becomes Right Leg
-        ];
-
-        // Initialize robots at scattered positions
         robots.forEach((bot, i) => {
             bot.position.copy(scatterPositions[i]);
-            // Make them face inward initially
-            bot.lookAt(0, 0, 0);
+            scene.add(bot);
         });
 
-        // State & Controls
+        // Exact interlocking anatomical offsets (no gaps, forms a solid humanoid)
+        // Torso is 30 units tall (Y = -15 to +15). 
+        // Head is 12 units tall (Y = -6 to +6).
+        // Legs are 40 units tall (Y = -20 to +20).
+        const humanoidOffsets = [
+            new THREE.Vector3(0, 21, 0),     // Head: Top of Torso(15) + Bottom of Head(6) = 21
+            new THREE.Vector3(0, 0, 0),      // Torso: Center pivot
+            new THREE.Vector3(-20, -2.5, 0), // L-Arm: Left edge of Torso(-15) - Half Arm width(-5) = -20
+            new THREE.Vector3(20, -2.5, 0),  // R-Arm: Right edge of Torso(15) + Half Arm width(5) = 20
+            new THREE.Vector3(-8, -35, 0),   // L-Leg: Bottom of Torso(-15) - Half Leg height(-20) = -35
+            new THREE.Vector3(8, -35, 0)     // R-Leg: Bottom of Torso(-15) - Half Leg height(-20) = -35
+        ];
+
         let isAssembled = false;
-        let humanoidPivot = new THREE.Vector3(0, 20, 0);
+        let humanoidPivot = new THREE.Vector3(0, 35, 0); // Lifted up so legs touch the grid
         let activeModal = false;
         const keys = { w: false, a: false, s: false, d: false };
 
-        // Assembly Trigger (Spacebar)
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !isAssembled && !activeModal) {
                 isAssembled = true;
@@ -296,55 +296,56 @@
             pads.forEach(p => { p.mesh.rotation.z += 0.02; });
 
             if (isAssembled && !activeModal) {
-                // WASD Humanoid Movement
-                let speed = 250 * delta;
+                let speed = 300 * delta;
                 if (keys.w) humanoidPivot.z -= speed;
                 if (keys.s) humanoidPivot.z += speed;
                 if (keys.a) humanoidPivot.x -= speed;
                 if (keys.d) humanoidPivot.x += speed;
 
-                // Check Project Portal Collision
                 pads.forEach(p => {
                     if (Math.hypot(humanoidPivot.x - p.x, humanoidPivot.z - p.z) < 40) {
                         activeModal = true;
                         document.getElementById('m-title').innerHTML = projects[p.id].title;
                         document.getElementById('m-desc').innerText = projects[p.id].desc;
                         modal.classList.add('visible');
-                        humanoidPivot.z += 50; // Bounce back
+                        humanoidPivot.z += 60; // Bounce back
                     }
                 });
 
-                // Lerp robots into their Voltron/Humanoid positions
+                // Snap pieces perfectly edge-to-edge
                 robots.forEach((bot, i) => {
                     let targetX = humanoidPivot.x + humanoidOffsets[i].x;
                     let targetY = humanoidPivot.y + humanoidOffsets[i].y;
                     let targetZ = humanoidPivot.z + humanoidOffsets[i].z;
                     
-                    bot.position.x += (targetX - bot.position.x) * 0.1;
-                    bot.position.y += (targetY - bot.position.y) * 0.1;
-                    bot.position.z += (targetZ - bot.position.z) * 0.1;
+                    bot.position.x += (targetX - bot.position.x) * 0.15;
+                    bot.position.y += (targetY - bot.position.y) * 0.15;
+                    bot.position.z += (targetZ - bot.position.z) * 0.15;
                     
-                    // Rotate them to face forward uniformly
-                    bot.rotation.x += (0 - bot.rotation.x) * 0.1;
-                    bot.rotation.y += (0 - bot.rotation.y) * 0.1;
-                    bot.rotation.z += (0 - bot.rotation.z) * 0.1;
+                    bot.rotation.set(0, 0, 0); // Lock rotation forward
                 });
 
-                // Camera follows the assembled humanoid
-                let targetCamX = humanoidPivot.x;
-                let targetCamY = humanoidPivot.y + 60;
-                let targetCamZ = humanoidPivot.z + 180;
-                
-                camera.position.x += (targetCamX - camera.position.x) * 0.05;
-                camera.position.y += (targetCamY - camera.position.y) * 0.05;
-                camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+                // Walking animation: pump arms and legs if moving
+                if (keys.w || keys.s || keys.a || keys.d) {
+                    let walkCycle = Math.sin(Date.now() * 0.01);
+                    robots[2].position.z += walkCycle * 10; // L-arm
+                    robots[3].position.z -= walkCycle * 10; // R-arm
+                    robots[4].position.z -= walkCycle * 10; // L-leg
+                    robots[5].position.z += walkCycle * 10; // R-leg
+                }
+
+                // Camera follow
+                camera.position.x += (humanoidPivot.x - camera.position.x) * 0.05;
+                camera.position.y += ((humanoidPivot.y + 70) - camera.position.y) * 0.05;
+                camera.position.z += ((humanoidPivot.z + 200) - camera.position.z) * 0.05;
                 camera.lookAt(humanoidPivot.x, humanoidPivot.y, humanoidPivot.z);
                 
             } else if (!isAssembled) {
-                // Gentle floating animation while scattered
+                // Scattered Idle Animation (looking like parked/hovering vehicles)
                 let time = Date.now() * 0.001;
                 robots.forEach((bot, i) => {
-                    bot.position.y = scatterPositions[i].y + Math.sin(time + i) * 5;
+                    bot.position.y = scatterPositions[i].y + Math.sin(time + i) * 3;
+                    bot.rotation.y = time * 0.2; // Slowly spinning to show their shapes
                 });
             }
 
